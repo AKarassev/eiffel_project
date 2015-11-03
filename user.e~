@@ -4,33 +4,30 @@ class USER
 --
 
 creation{ANY}
-	make, setNom, setPrenom, getNom, getPrenom
+	make, setnom, setprenom--, getnom--, getall--, getnom, getprenom
 
 feature{ANY}
-	idUser : INTEGER
-	nom, prenom : STRING
-       admin : BOOLEAN
+	nom, prenom, iduser : STRING
 
 feature{}
-	make (n : INTEGER;a,b : STRING) is
+	make (n,a,b : STRING) is
 		-- Création d'un nouvel utilisateur
 		require
 			n >= 1
 		do
-			idUser := n
+			iduser := n
 			nom := a
 			prenom := b
-                     admin := FALSE
 		end
 
-	setNom (n : STRING) is
-			-- Modification du nom de l'utilisateur
+	setnom (n : STRING) is
+		-- Modification du nom de l'utilisateur
 		do
 			nom := n
 		end
 
-	setPrenom (n : STRING) is
-			-- Modification du prénom de l'utilisateur
+	setprenom (n : STRING) is
+		-- Modification du prénom de l'utilisateur
 		do
 			prenom := n
 		end
