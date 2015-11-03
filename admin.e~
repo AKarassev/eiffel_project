@@ -16,9 +16,6 @@ feature{ANY}
 
        supprimerUser (nom,prenom : STRING) is
 		-- Suppression d'un utilisateur
-       
-       getUtilisateur (id: STRING) is
-              -- Retourne un utilisateur par son identifiant
 		
 
 

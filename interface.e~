@@ -14,7 +14,6 @@ feature
 
 invariant
        n > 0 and n < 100
---end exemple
 
 end -- class interface MEDIATHEQUE
 
