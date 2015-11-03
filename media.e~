@@ -20,5 +20,11 @@ feature{ANY}
                      titre := t
               end
 
+       setGenre (n : STRING) is
+              -- Modification du genre d'un media
+              do
+                     genre := n
+              end
+
 end -- classe MEDIA
 

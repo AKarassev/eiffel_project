@@ -9,6 +9,7 @@ creation{ANY}
 feature{ANY}
 	idUser : INTEGER
 	nom, prenom : STRING
+       admin : BOOLEAN
 
 feature{}
 	make (n : INTEGER;a,b : STRING) is
@@ -19,6 +20,7 @@ feature{}
 			idUser := n
 			nom := a
 			prenom := b
+                     admin := FALSE
 		end
 
 	setNom (n : STRING) is
