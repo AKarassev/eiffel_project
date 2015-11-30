@@ -8,9 +8,11 @@ creation{ANY}
 	main
 
 feature{ANY}
-       user : USER -- un utilisateur
-       dbuser : TEXT_FILE_READ -- la liste des utilisateurs
-       tuser: ARRAY[USER] -- la liste des utilisateurs
+       	user : USER -- un utilisateur
+       	dbuser : TEXT_FILE_READ -- la liste des utilisateurs
+	dbmedia : TEXT_FILE_READ -- liste des medias
+       	tuser: ARRAY[USER] -- la liste des utilisateurs
+	tmedia: ARRAY[MEDIA]
 
 feature{ANY}
 	main is
@@ -33,7 +35,7 @@ feature{ANY}
                      end
                      --create user1.make(1,"Daudet","Alphonse")
                      --io.put_string("Utilisateur créé %N")
-		end
+		end -- fonction main
 
        parser (n : STRING):ARRAY[STRING] is
               local
@@ -61,7 +63,7 @@ feature{ANY}
                             end
                      end
                      Result:=res
-              end             
+              end  -- fonction parser            
                             
 	
 end -- Classe Médiathèque

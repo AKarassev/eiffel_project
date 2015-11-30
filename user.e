@@ -4,18 +4,18 @@ class USER
 --
 
 creation{ANY}
-	make, setnom, setprenom--, getnom--, getall--, getnom, getprenom
+	make
 
 feature{ANY}
 	nom, prenom, iduser : STRING
 
 feature{}
-	make (n,a,b : STRING) is
-		-- Création d'un nouvel utilisateur
+	
+
+
+	make  is
 		do
-			iduser := n
-			nom := a
-			prenom := b
+			
 		end
 
 	setnom (n : STRING) is
@@ -28,6 +28,24 @@ feature{}
 		-- Modification du prénom de l'utilisateur
 		do
 			prenom := n
+		end
+
+	getnom : STRING is
+		-- Retourne le nom
+		do
+			Result:=nom
+		end
+
+	getprenom : STRING is
+		--Retourne le prenom
+		do
+			Result:=prenom
+		end
+
+	getid : STRING is
+		--Retourne l'identifiant
+		do
+			Result:=iduser
 		end
 
 end -- classe USER

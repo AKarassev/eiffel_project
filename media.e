@@ -7,18 +7,14 @@ creation{ANY}
        make
 
 feature{}
-       idMedia : INTEGER
+       idmedia : INTEGER
        titre : STRING
 
 feature{ANY}
-       make (n : INTEGER; t : STRING) is
+       make is
               -- Création d'un nouveau media
               require
                      n >= 1
-              do
-                     idMedia := n
-                     titre := t
-              end
 
 end -- classe MEDIA
 
