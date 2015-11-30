@@ -1,12 +1,13 @@
 class USER
 --
--- 
+-- Projet de Génie Logiciel à Objets
+-- Eflamm Ollivier & Aurore Bouchet
 --
 
 creation{ANY}
 	make, setnom, setprenom
 
-feature{ANY}
+feature{}
 	nom, prenom, iduser : STRING
 
 feature{ANY}
@@ -50,7 +51,7 @@ feature{ANY}
 			Result:=iduser
 		end
 
-
+	--Comment redéfinir la fonction is_equal?
 	--is_equal(other : USER) : BOOLEAN is
 
 		--do

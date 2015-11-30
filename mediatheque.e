@@ -7,7 +7,7 @@ class MEDIATHEQUE
 creation{ANY}
 	main
 
-feature{ANY}
+feature{}
        	user : USER -- un utilisateur
        	dbuser : TEXT_FILE_READ -- la liste des utilisateurs
 	dbmedia : TEXT_FILE_READ -- liste des medias

@@ -2,7 +2,7 @@ class TESTUSER
 --
 -- Projet de Génie Logiciel à Objets
 -- Eflamm Ollivier & Aurore Bouchet
--- Classe principale
+-- Classe de tests
 --
 creation{ANY}
 	main
