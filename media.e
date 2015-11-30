@@ -11,10 +11,15 @@ feature{}
        titre : STRING
 
 feature{ANY}
-       make is
-              -- Création d'un nouveau media
-              require
-                     n >= 1
+	make (id : INTEGER; t : STRING) is
+	      -- Création d'un nouveau media
+	require
+		n >= 1
+	do
+		idmedia := id
+		titre := t
+	end	
+			
 
 end -- classe MEDIA
 

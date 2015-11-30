@@ -4,18 +4,20 @@ class USER
 --
 
 creation{ANY}
-	make
+	make, setnom, setprenom
 
 feature{ANY}
 	nom, prenom, iduser : STRING
 
-feature{}
+feature{ANY}
 	
 
 
-	make  is
+	make (id, p, n : STRING)  is
 		do
-			
+			iduser := id
+			nom := n
+			prenom := p	
 		end
 
 	setnom (n : STRING) is
@@ -47,6 +49,13 @@ feature{}
 		do
 			Result:=iduser
 		end
+
+
+	--is_equal(other : USER) : BOOLEAN is
+
+		--do
+			--Result := iduser.is_equal(u.getid)
+		--end
 
 end -- classe USER
 
