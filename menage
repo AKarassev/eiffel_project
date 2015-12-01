@@ -1,0 +1,6 @@
+#!/bin/bash
+rm *.c
+rm *.h
+rm *.o
+#rm *.e~
+rm *.id

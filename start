@@ -1,0 +1,9 @@
+#!/bin/bash
+
+compile -o interface interface.e
+
+./interface
+
+rm interface
+./menage
+

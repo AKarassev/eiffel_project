@@ -1,0 +1,15 @@
+#!/bin/bash
+
+compile -o testUser testUser.e
+compile -o testMedia testMedia.e
+compile -o testMediatheque testMediatheque.e
+
+./testUser
+./testMedia
+./testMediatheque
+
+rm testUser
+rm testMedia
+rm testMediatheque
+
+./menage
