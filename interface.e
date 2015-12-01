@@ -1,28 +1,21 @@
-class interface MEDIATHEQUE
+class INTERFACE
+--
+-- Projet de Génie Logiciel à Objets
+-- Eflamm Ollivier & Aurore Bouchet
+-- Classe de tests
+--
+creation{ANY}
+	main
 
-feature
+feature{ANY}
+main is
+	local
 
---exemple
-       methode : INT
-              --precondition
-              require
-                     n > 0
-                     n < 100
-              --postcondition
-              ensure
-                     nombre == n
-
-invariant
-       n > 0 and n < 100
---end exemple
-
-end -- class interface MEDIATHEQUE
+	do
+		io.put_string("%N%N-------- LOGICIEL DE LA MEDIATHEQUE -------- %N%N")
 
 
+	end
 
 
-
---documentation
---http://www.maths.tcd.ie/~odunlain/eiffel/eiffel_course/eforb.htm
--- "Programming by Contract"
-
+end -- class TESTMEDIATHEQUE
