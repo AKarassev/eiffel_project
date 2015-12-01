@@ -8,11 +8,11 @@ creation{ANY}
 	main
 
 feature{}
-       	user : USER -- un utilisateur
-       	dbuser : TEXT_FILE_READ -- la liste des utilisateurs
-	dbmedia : TEXT_FILE_READ -- liste des medias
-       	tuser: ARRAY[USER] -- la liste des utilisateurs
-	tmedia: ARRAY[MEDIA]
+       	user : USER 			-- un utilisateur
+       	dbuser : TEXT_FILE_READ 	-- la liste des utilisateurs
+	dbmedia : TEXT_FILE_READ 	-- liste des medias
+       	tuser: ARRAY[USER] 		-- la liste des utilisateurs
+	tmedia: ARRAY[MEDIA] 		-- la liste des medias
 
 feature{ANY}
 	main is
@@ -63,7 +63,26 @@ feature{ANY}
                             end
                      end
                      Result:=res
-              end  -- fonction parser            
+              end  -- fonction parser  
+
+	--path : chemin du fichier texte décrivant les utilisateurs
+	fichier_user ( path : STRING ) is
+		local
+			file : TEXT_FILE_READ
+			id, nom, prenom, admin : STRING
+		do
+			create dbuser.make
+			dbuser.connect_to("utilisateurs.txt")
+			from
+			    x := 0
+			until
+			    dbuser.end_of_input
+			loop
+			    dbuser.read_line
+			    io.put_string(dbuser.last_string+"%N")
+			end
+			--create user1.make(1,"Daudet","Alphonse")
+		end        
                             
 	
 end -- Classe Médiathèque

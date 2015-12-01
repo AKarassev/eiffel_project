@@ -7,25 +7,16 @@ creation{ANY}
        make
 
 feature{}
-	idmedia : INTEGER
 	titre : STRING
 	annee : INTEGER 
-	genre : STRING
 
 feature{ANY}
 
-	make (id : INTEGER; t : STRING;  a : INTEGER; g : STRING) is
+	make (t : STRING;  a : INTEGER) is
 	      -- Création d'un nouveau media
 	do
-		idmedia := id
 		titre := t
 		annee := a
-		genre := g
-	end
-
-	setid (id : INTEGER) is
-	do
-		idmedia := id
 	end
 
 	settitre (t : STRING) is
@@ -38,16 +29,6 @@ feature{ANY}
 		annee := a
 	end
 
-	setgenre (g : INTEGER) is
-	do
-		genre := g
-	end
-
-	getid : STRING is
-	do
-		Result := idmedia
-	end
-
 	gettitre : STRING is
 	do
 		Result := titre
@@ -58,10 +39,6 @@ feature{ANY}
 		Result := annee
 	end
 
-	getgenre : STRING  is
-	do
-		Result := genre
-	end
 		
 			
 

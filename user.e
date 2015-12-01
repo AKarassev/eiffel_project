@@ -12,13 +12,11 @@ feature{}
 
 feature{ANY}
 	
-
-
 	make (id, p, n : STRING)  is
 		do
 			iduser := id
 			nom := n
-			prenom := p	
+			prenom := p
 		end
 
 	setnom (n : STRING) is
@@ -49,6 +47,19 @@ feature{ANY}
 		--Retourne l'identifiant
 		do
 			Result:=iduser
+		end
+
+	emprunter (m : MEDIA; te : ARRAY[EMPRUNT]) is
+		local	
+			new_emprunt : EMPRUNT
+		do
+			!!new_emprunt.make(Current, m, 0,0,0) --TODO gérer les dates pour les emprunts. Constantes pour le delai?
+			te.add_first(new_emprunt)
+		end
+
+	to_string : STRING is
+		do
+			Result := "%N Identifiant :"+iduser+"%N Prénom: "+prenom+"%N Nom: "+nom+"%N"
 		end
 
 	--Comment redéfinir la fonction is_equal?

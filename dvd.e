@@ -14,8 +14,8 @@ feature{}
 	type : STRING
 
 feature{ANY}
-	make_dvd (id : INTEGER; tit : STRING;  an : INTEGER; g : STRING; r : STRING; act : ARRAY[STRING]; ty : STRING) is
-		make(id, tit, an, g)
+	make_dvd ( tit : STRING;  an : INTEGER; r : STRING; act : ARRAY[STRING]; ty : STRING) is
+		make(tit, an)
 		realisateur := r
 		acteur.copy(act)
 		type := ty

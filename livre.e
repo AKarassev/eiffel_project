@@ -13,8 +13,9 @@ feature{}
 
 feature{ANY}
 
-	make_livre (id : INTEGER; t : STRING;  an : INTEGER; g : STRING; aut : STRING) is
-		make(id, t, an, g)
+	make_livre (t : STRING;  an : INTEGER; aut : STRING) is
+	do
+		make( t, an)
 		auteur := aut
 	end
 
