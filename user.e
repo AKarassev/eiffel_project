@@ -51,6 +51,7 @@ feature{ANY}
 		do
 			Result:=iduser
 		end
+       
 
 	emprunter (m : MEDIA; te : ARRAY[EMPRUNT]) is
 		local	

@@ -19,11 +19,10 @@ feature{ANY}
 
 	make is
 	do
-		!!tuser.make(1,1)
-		!!tmedia.make(1,1)
+		create tuser.make(1,1)
+		create tmedia.make(1,1)
 	end	
 
-  
 	
 	--Construit la base de données des utilisateurs de la mediatheque à partir d'un fichier
 	--path : chemin du fichier texte décrivant les utilisateurs
@@ -37,7 +36,7 @@ feature{ANY}
 		do
 			create fichier.make
 			fichier.connect_to(path)
-			!!arrstring.make(1,1)
+			 create arrstring.make(1,1)
 			from
 			    x := 0
 			until
@@ -112,7 +111,7 @@ feature{ANY}
 		local
  			new_user : USER
 		do
-			!!new_user.make(id, p, n)
+			 create new_user.make(id, p, n)
 			--io.put_string(new_user.to_string)
 			tuser.add_first(new_user)	
 		end
@@ -121,7 +120,7 @@ feature{ANY}
 		local
  			new_admin : ADMIN
 		do
-			!!new_admin.make(id, p, n)
+			create new_admin.make(id, p, n)
 			--io.put_string(new_admin.to_string)
 			tuser.add_first(new_admin)	
 		end                          
