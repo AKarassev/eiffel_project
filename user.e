@@ -3,6 +3,9 @@ class USER
 -- Projet de Génie Logiciel à Objets
 -- Eflamm Ollivier & Aurore Bouchet
 --
+inherit
+	COMPARABLE 
+	redefine is_equal end
 
 creation{ANY}
 	make, setnom, setprenom
@@ -53,21 +56,26 @@ feature{ANY}
 		local	
 			new_emprunt : EMPRUNT
 		do
-			!!new_emprunt.make(Current, m, 0,0,0) --TODO gérer les dates pour les emprunts. Constantes pour le delai?
+			create new_emprunt.make(Current, m, 0,0,0) --TODO gérer les dates pour les emprunts. Constantes pour le delai?
 			te.add_first(new_emprunt)
 		end
 
 	to_string : STRING is
 		do
-			Result := "%N Identifiant :"+iduser+"%N Prénom: "+prenom+"%N Nom: "+nom+"%N"
+			Result := "%N Identifiant :"+iduser+"%N Nom: "+nom+"%N Prénom: "+prenom+"%N"
 		end
 
-	--Comment redéfinir la fonction is_equal?
-	--is_equal(other : USER) : BOOLEAN is
+	--L'égalité de deux users se fait uniquement sur iduser
+	is_equal(other : like Current) : BOOLEAN is
+		do
+			Result := iduser.is_equal(other.getid)
+		end
 
-		--do
-			--Result := iduser.is_equal(u.getid)
-		--end
+	--Méthode nécessaire pour implémenter is_equal
+	infix "<" (other: like Current) : BOOLEAN is
+		do	
+			Result := iduser < other.getid
+		end
 
 end -- classe USER
 

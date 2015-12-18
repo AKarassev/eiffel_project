@@ -11,72 +11,58 @@ creation{ANY}
 feature{ANY}
 	
 
-	ajouteruser (id, p, n : STRING; tu : ARRAY[USER]) is
+	ajouteruser (new_user : USER; tu : ARRAY[USER]) is
 		-- Ajout d'un nouvel utilisateur dans un tableau d'utilisateur
-		--pre : l'identifiant doit être unique dans le tableau
-		local
-			new_user : USER
+		--pre : iduser du nouveau user doit être unique dans le tableau
+		--post : le nouveau user existe dans le tableau
+		--post : la taille du tableau est incrémentée
+		require
+			user_not_exists : tu.has(new_user) = False	
 		do
-			!!new_user.make(id, n, p)
+			--create new_user.make(id, n, p)
 			tu.add_first(new_user) -- Add a new item in first position : [...] all other items are shifted right.
+		ensure
+			user_exists : tu.has(new_user) = True
+			array_length_increment : tu.upper = old tu.upper + 1 
 		end -- fonction ajouteruser
 
 		
 		
 
-       modifieruser (id, p, n : STRING; tu : ARRAY[USER]) is
+       modifieruser (old_user, new_user: USER; tu : ARRAY[USER]) is
 		-- Modification d'un utilisateur se trouvant dans un tableau d'utilisateur
-		-- pre: l'utilisateur correspondant à l'identifiant doit exister
+		-- pre: le user correspondant à l'identifiant doit exister 		
+		-- pre: un admin ne peut pas modifier un autre administrateur			TODO
+		require
+			user_exists : tu.has(old_user) = True
 		local
 			i : INTEGER
-			found : BOOLEAN
 		do
-			found := False
-			from 
-				i := 1
-			until
-				found = True or i = tu.upper
-			loop
-				if (id.is_equal(tu.item(i).getid)) then
-					tu.item(i).setnom(n)
-					tu.item(i).setprenom(p)
-					found := True
-				end
-				i := i + 1
-			end
-			if (found = False) then
-				io.put_string("Erreur: cet utilisateur n'existe pas %N")
-			end
-					
+			i := tu.first_index_of(old_user)
+			tu.force(new_user, i)			
 		end --fonction modifieruser
 			
 		
 
-       supprimeruser (id : STRING; tu : ARRAY[USER]) is
+       supprimeruser (rem_user : USER; tu : ARRAY[USER]) is
 		-- Suppression d'un utilisateur se trouvant dans un tableau d'utilisateur
-		-- pre: l'utilisateur correspondant à l'identifiant doit exister
+		-- pre: le user correspondant à l'identifiant doit exister
+		-- pre: un administrateur ne peut pas supprimer un autre administrateur		TODO
+		-- post: le user correspondant à l'identifiant n'existe plus dans le tableau
+		-- post: la taille du tableau est décrémentée
+
+		require
+			user_exists : tu.has(rem_user) = True
 		local
 			i : INTEGER
-			found : BOOLEAN
 		do
-			found := False
-			from 
-				i := 1
-			until
-				found = True or i = tu.upper
-			loop
-				if (id.is_equal(tu.item(i).getid)) then
-					tu.remove(i)
-					found := True
-				end
-				i := i + 1
-			end
-			if (found = False) then
-				io.put_string("Erreur: cet utilisateur n'existe pas %N")
-			end
+			i := tu.first_index_of(rem_user)
+			tu.remove(i)
+		ensure
+			user_not_exists : tu.has(rem_user) = False
+			array_length_decrement : tu.upper = old tu.upper - 1 		
 		end -- fonction supprimeruser
-       
-		
+       		
 
 
 end -- classe ADMIN

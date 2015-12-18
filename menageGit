@@ -1,0 +1,7 @@
+#!/bin/bash
+
+git rm *.c
+git rm *.h
+git rm *.o
+#rm *.e~
+git rm *.id
