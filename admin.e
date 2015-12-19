@@ -3,7 +3,9 @@ class ADMIN
 -- Projet de Génie Logiciel à Objets
 -- Eflamm Ollivier & Aurore Bouchet
 --
-inherit USER
+inherit 
+	USER
+	redefine to_string end
 
 creation{ANY}
 	make
@@ -62,6 +64,11 @@ feature{ANY}
 			user_not_exists : tu.has(rem_user) = False
 			array_length_decrement : tu.upper = old tu.upper - 1 		
 		end -- fonction supprimeruser
+
+	to_string : STRING is
+		do
+			Result := Precursor + " Admin: oui %N"
+		end
        		
 
 
