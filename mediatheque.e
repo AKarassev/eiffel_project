@@ -13,16 +13,23 @@ feature{}
        	tuser: ARRAY[USER] 		-- la liste des utilisateurs
 	tmedia: ARRAY[MEDIA] 		-- la liste des medias
 	temprunt: ARRAY[EMPRUNT]	-- liste des emprunts
+	quota_defaut : INTEGER		-- le quota par défaut de la médiathèque
+	delai_defaut : INTEGER		-- le délai par défaut pour rendre un média, en nombre de jours
 
 
 
 feature{ANY}
 
-	make is
+	-- pre: les quotas et les délais doivent être positifs
+	make(qd, dd : INTEGER) is
+	require 
+		positif : qd>0 and dd>0
 	do
 		create tuser.make(1,1)
 		create tmedia.make(1,1)
 		create temprunt.make(1,1)
+		quota_defaut := qd
+		delai_defaut := dd
 	end	
 
 	
@@ -258,7 +265,7 @@ feature{ANY}
 			until
 				i = tuser.upper
 			loop
-				str.append(tuser.item(i).to_string)
+				str.append("%N"+tuser.item(i).to_string+"%N")
 				i := i+1
 			end
 			Result := str
@@ -275,7 +282,24 @@ feature{ANY}
 			until
 				i = tmedia.upper
 			loop
-				str.append(tmedia.item(i).to_string)
+				str.append("%N"+tmedia.item(i).to_string+"%N")
+				i := i+1
+			end
+			Result := str
+		end
+
+	to_string_all_emprunt : STRING is
+		local		
+			i : INTEGER
+			str : STRING
+		do
+			create str.make(1)
+			from 
+				i := 1
+			until
+				i = temprunt.upper
+			loop
+				str.append(temprunt.item(i).to_string)
 				i := i+1
 			end
 			Result := str
@@ -296,13 +320,92 @@ feature{ANY}
 			tmedia.add_first(new_media)	
 		end
 
-
+	ajouteremprunt (new_emprunt : EMPRUNT) is
+		do
+			temprunt.add_first(new_emprunt)
+		end
 
 
 	getusers : ARRAY[USER] is
 		do
 			Result := tuser
-		end                          
+		end  
+
+	getmedias : ARRAY[MEDIA] is
+		do
+			Result := tmedia
+		end  
+	
+	getemprunts : ARRAY[EMPRUNT] is
+		do
+			Result := temprunt
+		end  
+
+	--Retourne un tableau d'emprunts qui ont le même user et le même média emprunté et non rendu
+	--pre: l'utilisateur doit exister TODO
+	--pre: le media doit exister TODO
+	get_same_emprunts_non_rendu(u : USER; m : MEDIA) : ARRAY[EMPRUNT] is
+		local
+			i : INTEGER
+			out_emprunt : ARRAY[EMPRUNT]
+		do
+			create out_emprunt.make(1,1)
+			from 
+				i := 1
+			until
+				i = temprunt.upper
+			loop
+				if u.is_equal(temprunt.item(i).getuser) and m.is_equal(temprunt.item(i).getmedia) and temprunt.item(i).getis_rendu = False then
+					out_emprunt.add_first(temprunt.item(i))
+				end					
+				i := i + 1 	
+			end
+
+			Result := out_emprunt	
+		end
+
+	--Retourne l'emprunt le plus récent 
+	--pre: le tableau d'emprunt doit être non-vide TODO
+	oldest_emprunt(array_emprunt : ARRAY[EMPRUNT]) : EMPRUNT is
+		local
+			i : INTEGER
+			out_emprunt : EMPRUNT
+		do
+			out_emprunt := array_emprunt.item(1)
+			from 
+				i := 2
+			until
+				i = array_emprunt.upper
+			loop
+				
+				if out_emprunt > array_emprunt.item(i) then
+					out_emprunt := 	array_emprunt.item(i)
+				end					
+				i := i + 1 	
+			end
+			
+			Result := out_emprunt	
+		end
+
+	getquota : INTEGER is
+		do
+			Result := quota_defaut
+		end
+
+	setquota ( qd : INTEGER) is
+		do
+			quota_defaut := qd
+		end  
+
+	getdelai : INTEGER is
+		do
+			Result := delai_defaut
+		end
+
+	setdelai ( dd : INTEGER) is
+		do
+			delai_defaut := dd
+		end                      
 	
 end -- Classe Médiathèque
 

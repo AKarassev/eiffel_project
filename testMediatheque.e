@@ -15,7 +15,7 @@ main is
 		io.put_string("%N%N-------- MEDIATHEQUE -------- %N%N")
 
 		io.put_string("%N ------- Test de fichier_user ------- %N")
-		create mt1.make
+		create mt1.make(5,30)
 		mt1.fichier_user("utilisateurs.txt")
 		io.put_string(mt1.to_string_all_user)
 		io.put_string("%N ------- Test de fichier_media ------- %N")

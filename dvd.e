@@ -64,28 +64,29 @@ feature{ANY}
 		i : INTEGER
 	do
 		out_str := Precursor + "%N Année :"+ annee.to_string
+		out_str := out_str+"%N Réalisateurs : "
 		from 
 			i := 1
 		until
 			i = realisateur.upper
 		loop
-			out_str := out_str + "%N Réalisateur :"+ realisateur.item(i)
+			out_str := out_str + realisateur.item(i) + ", "
 			i := i + 1 	
 		end
 
+		out_str := out_str+"%N Acteurs : "
 		from 
 			i := 1
 		until
 			i = acteur.upper
 		loop
-			out_str := out_str + "%N Acteur :"+ acteur.item(i) 
+			out_str := out_str + acteur.item(i) + ", "
 			i := i + 1 	
 		end
 
 		if type.count > 0 then
 			out_str := out_str + "%N Type :" + type
 		end
-		out_str := out_str + "%N -------------------------------------------------- %N"
 		Result := out_str
 	end	
 

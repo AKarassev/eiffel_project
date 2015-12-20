@@ -12,9 +12,9 @@ creation{ANY}
        make
 
 feature{}
-	titre : STRING
-	nb_exemplaire : INTEGER
-	mediatheque : MEDIATHEQUE
+	titre : STRING			--titre de l'oeuvre
+	nb_exemplaire : INTEGER  	--nombre d'exemplaires disponibles
+	mediatheque : MEDIATHEQUE	--médiathèque à laquelle le média appartient
 
 feature{ANY}
 
@@ -48,7 +48,7 @@ feature{ANY}
 
 	to_string : STRING is
 		do
-			Result :="%N%N%N       Titre :"+titre+" %N Nombre :" + nb_exemplaire.to_string 
+			Result :="%N Titre :"+titre+" %N Nombre :" + nb_exemplaire.to_string 
 		end
 
        is_equal(other: like Current): BOOLEAN is
@@ -58,7 +58,7 @@ feature{ANY}
 		stra := other.gettitre
 		strb := titre
 		Result := (stra.is_equal(strb))
-		--Result := annee = other.getannee
+
        end
 
 	infix "<" (other : MEDIA): BOOLEAN is
