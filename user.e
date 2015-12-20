@@ -12,14 +12,16 @@ creation{ANY}
 
 feature{}
 	nom, prenom, iduser : STRING
+	mediatheque : MEDIATHEQUE
 
 feature{ANY}
 	
-	make (id, p, n : STRING)  is
+	make (id, p, n : STRING; mt : MEDIATHEQUE)  is
 		do
 			iduser := id
 			nom := n
 			prenom := p
+			mediatheque := mt
 		end
 
 	setnom (n : STRING) is

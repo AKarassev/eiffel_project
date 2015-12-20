@@ -4,26 +4,33 @@ class DVD
 -- Eflamm Ollivier & Aurore Bouchet
 --
 inherit MEDIA
+	redefine to_string end
 
 creation{ANY}
 	make_dvd
 
 feature{}
-	realisateur : STRING
+	realisateur : ARRAY[STRING]
+	annee : INTEGER
 	acteur : ARRAY[STRING]
 	type : STRING
 
 feature{ANY}
-	make_dvd ( tit : STRING;  an : INTEGER; r : STRING; act : ARRAY[STRING]; ty : STRING) is
-		make(tit, an)
-		realisateur := r
+	make_dvd ( tit : STRING;  an : INTEGER; real , act : ARRAY[STRING]; ty : STRING; nb : INTEGER; mt : MEDIATHEQUE) is
+	do
+		make(tit, nb, mt)
+		create realisateur.make(1,1)
+		create acteur.make(1,1)
+		realisateur.copy(real)
 		acteur.copy(act)
 		type := ty
+		annee := an
+		mediatheque := mt
 	end
 
-	setrealisateur (r : INTEGER) is
+	setrealisateur (real : ARRAY[STRING]) is
 	do
-		realisateur := r
+		realisateur.copy(real)
 	end
 
 	setacteur (a : ARRAY[STRING]) is
@@ -36,7 +43,7 @@ feature{ANY}
 		type := t
 	end
 
-	getrealisateur : STRING  is
+	getrealisateur : ARRAY[STRING]  is
 	do
 		Result := realisateur
 	end
@@ -49,6 +56,37 @@ feature{ANY}
 	gettype : STRING  is
 	do
 		Result := type
+	end
+
+	to_string : STRING is
+	local
+		out_str : STRING
+		i : INTEGER
+	do
+		out_str := Precursor + "%N Année :"+ annee.to_string
+		from 
+			i := 1
+		until
+			i = realisateur.upper
+		loop
+			out_str := out_str + "%N Réalisateur :"+ realisateur.item(i)
+			i := i + 1 	
+		end
+
+		from 
+			i := 1
+		until
+			i = acteur.upper
+		loop
+			out_str := out_str + "%N Acteur :"+ acteur.item(i) 
+			i := i + 1 	
+		end
+
+		if type.count > 0 then
+			out_str := out_str + "%N Type :" + type
+		end
+		out_str := out_str + "%N -------------------------------------------------- %N"
+		Result := out_str
 	end	
 
 

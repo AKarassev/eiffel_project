@@ -13,15 +13,17 @@ creation{ANY}
 
 feature{}
 	titre : STRING
-	annee : INTEGER 
+	nb_exemplaire : INTEGER
+	mediatheque : MEDIATHEQUE
 
 feature{ANY}
 
-	make (t : STRING;  a : INTEGER) is
+	make (t : STRING;  n : INTEGER; mt : MEDIATHEQUE) is
 	      -- Création d'un nouveau media
 	do
 		titre := t
-		annee := a
+		nb_exemplaire := n
+		mediatheque := mt
 	end
 
 	settitre (t : STRING) is
@@ -29,9 +31,9 @@ feature{ANY}
 		titre := t
 	end
 
-	setannee (a : INTEGER) is
+	setnb_exemplaire (n : INTEGER) is
 	do
-		annee := a
+		nb_exemplaire := n
 	end
 
 	gettitre : STRING is
@@ -39,10 +41,15 @@ feature{ANY}
 		Result := titre
 	end
 
-	getannee : INTEGER is
+	getnb_exemplaire : INTEGER is
 	do
-		Result := annee
+		Result := nb_exemplaire
 	end
+
+	to_string : STRING is
+		do
+			Result :="%N%N%N       Titre :"+titre+" %N Nombre :" + nb_exemplaire.to_string 
+		end
 
        is_equal(other: like Current): BOOLEAN is
 	local
@@ -61,7 +68,6 @@ feature{ANY}
 		stra := other.gettitre
 		strb := titre
 		Result := (stra < strb)
-		--Result := annee = other.getannee
        end
 
 

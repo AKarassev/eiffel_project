@@ -3,7 +3,8 @@ class LIVRE
 -- Projet de Génie Logiciel à Objets
 -- Eflamm Ollivier & Aurore Bouchet
 --
-inherit MEDIA	
+inherit MEDIA
+	redefine to_string end	
 
 creation{ANY}
 	make_livre
@@ -13,10 +14,11 @@ feature{}
 
 feature{ANY}
 
-	make_livre (t : STRING;  an : INTEGER; aut : STRING) is
+	make_livre (t : STRING; aut : STRING; nb : INTEGER; mt : MEDIATHEQUE) is
 	do
-		make( t, an)
+		make( t, nb, mt)
 		auteur := aut
+		mediatheque := mt
 	end
 
 	setauteur (a : STRING) is
@@ -28,6 +30,11 @@ feature{ANY}
 	do
 		Result := auteur
 	end
+
+	to_string : STRING is
+		do
+			Result := Precursor + "%N Auteur :" + auteur + "%N -------------------------------------------------- %N"
+		end
 
 
 end -- class LIVRE
