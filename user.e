@@ -62,6 +62,40 @@ feature{ANY}
 	do
 		Result := mediatheque
 	end
+
+	-- Faire une recherche parmi les médias, dont les données pourraient correpsondre à la chaîne de caractère
+	-- On peut faire une recherche uniquement par livre ou par DVD, si s contient exactement "Livre" ou "DVD"
+	-- TODO on peut améliorer le filtre
+	rechercher (s : STRING) : ARRAY[MEDIA] is
+	local
+		i : INTEGER
+		out_medias : ARRAY[MEDIA]
+		m : MEDIA
+	do
+		create out_medias.make(1,1)
+		from 
+			i := 1
+		until
+			i = mediatheque.getmedias.upper
+		loop
+			m := mediatheque.getmedias.item(i)
+
+
+			if s.is_equal("Livre") and {LIVRE} ?:= m then
+				out_medias.add_first(m)
+			elseif s.is_equal("DVD") and {DVD} ?:= m then
+				out_medias.add_first(m)
+			else
+				if m.to_string.has_substring(s) then
+					out_medias.add_first(m)
+				end
+			end
+					
+			i := i + 1 	
+		end
+
+		Result := out_medias
+	end
        
 	-- pre : le nombre d'emprunt actuel du user doit être strictement inférieur au quota qu'il lui a été accordé 
 	-- pre : le media doit avoir au moins un exemplaire disponible

@@ -11,30 +11,31 @@ feature{ANY}
 
 main is
 	local
-             	u1, u31, u32, u33 u41, u42, u51, u52, u61 : USER
+             	u1, u31, u32, u33 u41, u42, u51, u52, u61, u71 : USER
 		a1, a2, a3 : ADMIN
-		m1, m2, m3, m4, m5: MEDIATHEQUE
+		m1, m2, m3, m4, m5, m6: MEDIATHEQUE
 	do
 		io.put_string("%N%N-------- USER -------- %N%N")
 
 		io.put_string("%N Test de make %N")
-		create m4.make
+		create m4.make(5,30)
 		create u1.make("e130159c", "eflamm", "ollivier", m4)
 		io.put_string(u1.to_string)
 
 		io.put_string("%N Test de is_equal %N")
-		create m5.make
+		create m5.make(5,30)
 		create u31.make("e130159c", "eflamm", "ollivier", m5)
 		create u32.make("e130159c", "mmalfe", "reivillo", m5)
 		create u33.make("c951031e", "mmalfe", "reivillo", m5)
 		io.put_string("Les users sont équivalents : "+u31.is_equal(u32).to_string+" %N")
 		io.put_string("Les users sont différents : "+u31.is_equal(u33).to_string+" %N")
+		
 
 
 		io.put_string("%N-------- ADMIN --------%N")
 
 		io.put_string("%N Test de ajouteruser %N")
-		create m1.make
+		create m1.make(5,30)
 		create a1.make("admin1", "bob", "leponge", m1)
 		create u41.make("e130159c", "eflamm", "ollivier", m1)
 		create u42.make("c951031e", "mmalfe", "reivillo", m1)
@@ -44,7 +45,7 @@ main is
 		io.put_string("Deuxième valeur du tableau d'utilisateur : "+m1.getusers.item(2).getid+" %N")
 
 		io.put_string("%N Test de modifieruser %N")
-		create m2.make
+		create m2.make(5,30)
 		create a2.make("admin2", "patrick", "star", m2)
 		create u51.make("e130159c", "eflamm", "ollivier", m2)
 		create u52.make("e130159c", "mmalfe", "reivillo", m2) -- user modifié
@@ -54,7 +55,7 @@ main is
 		io.put_string("Valeur de l'élément modifié : "+m2.getusers.item(1).to_string+" %N")
 
 		io.put_string("%N Test de supprimeruser %N")
-		create m3.make
+		create m3.make(5,30)
 		create a3.make("admin2", "patrick", "star", m3)
 		create u61.make("e130159c", "eflamm", "ollivier", m3)
 		a3.ajouteruser(u61)

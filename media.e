@@ -69,9 +69,6 @@ feature{ANY}
 		strb := titre
 		Result := (stra < strb)
        end
-
-
-
 		
 			
 
