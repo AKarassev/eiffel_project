@@ -63,7 +63,7 @@ feature{ANY}
 		out_str : STRING
 		i : INTEGER
 	do
-		out_str := Precursor + "%N Année :"+ annee.to_string
+		out_str := Precursor + "%N Année : "+ annee.to_string
 		out_str := out_str+"%N Réalisateurs : "
 		from 
 			i := 1
@@ -85,7 +85,7 @@ feature{ANY}
 		end
 
 		if type.count > 0 then
-			out_str := out_str + "%N Type :" + type
+			out_str := out_str + "%N Type : " + type
 		end
 		Result := out_str
 	end	

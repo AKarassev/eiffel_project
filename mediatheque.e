@@ -8,8 +8,7 @@ creation{ANY}
 	make
 
 feature{}
-       	dbuser : TEXT_FILE_READ 	-- la liste des utilisateurs
-	dbmedia : TEXT_FILE_READ 	-- liste des medias
+	su : SUPERADMIN			-- superutilisateur e la mediatheque, il a tous les droits sur cette médiathèque
        	tuser: ARRAY[USER] 		-- la liste des utilisateurs
 	tmedia: ARRAY[MEDIA] 		-- la liste des medias
 	temprunt: ARRAY[EMPRUNT]	-- liste des emprunts
@@ -30,6 +29,7 @@ feature{ANY}
 		create temprunt.make(1,1)
 		quota_defaut := qd
 		delai_defaut := dd
+		create su.make("su", "", "", Current)
 	end	
 
 	
@@ -284,6 +284,23 @@ feature{ANY}
 			loop
 				str.append("%N"+tmedia.item(i).to_string+"%N")
 				i := i+1
+			end
+			Result := str
+		end
+
+	to_string_array_media ( array_media : ARRAY[MEDIA]) : STRING is
+		local
+			i : INTEGER
+			str : STRING
+		do
+			create str.make(1)
+			from 
+				i := 1
+			until
+				i = array_media.upper
+			loop
+				str.append("Resultat n°"+i.to_string+"%N"+array_media.item(i).to_string + "%N")
+				i := i + 1 	
 			end
 			Result := str
 		end

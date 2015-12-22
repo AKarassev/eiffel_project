@@ -8,9 +8,20 @@ inherit
 	redefine to_string end
 
 creation{ANY}
-	make
+	make, make_from_user
 
 feature{ANY}
+
+
+	make_from_user ( u : USER ) is
+		do
+			iduser := u.getid
+			nom := u.getnom
+			prenom := u.getprenom
+			mediatheque := u.getmediatheque
+			quota := mediatheque.getquota
+			nb_emprunt := 0			
+		end
 	
 
 	ajouteruser (new_user : USER) is
@@ -32,10 +43,13 @@ feature{ANY}
 
        modifieruser (old_user, new_user: USER) is
 		-- Modification d'un utilisateur se trouvant dans un tableau d'utilisateur
-		-- pre: le user correspondant à l'identifiant doit exister 		
-		-- pre: un admin ne peut pas modifier un autre administrateur			TODO
+		-- pre: old_user doit exister
+		-- pre: new_user doit avoir le même identifiant que old_user
+		-- pre: seul un superadministrateur peut supprimer un administrateur
 		require
 			user_exists : mediatheque.getusers.has(old_user) = True
+			user_equal : new_user.is_equal(old_user)
+			is_superadmin: not ({SUPERADMIN} ?:= Current) implies not ({ADMIN} ?:= old_user)
 		local
 			i : INTEGER
 		do
@@ -48,12 +62,13 @@ feature{ANY}
        supprimeruser (rem_user : USER) is
 		-- Suppression d'un utilisateur se trouvant dans un tableau d'utilisateur
 		-- pre: le user correspondant à l'identifiant doit exister
-		-- pre: un administrateur ne peut pas supprimer un autre administrateur		TODO
+		-- pre: seul un superadministrateur peut supprimer un autre administrateur	
 		-- post: le user correspondant à l'identifiant n'existe plus dans le tableau
 		-- post: la taille du tableau est décrémentée
 
 		require
 			user_exists : mediatheque.getusers.has(rem_user) = True
+			is_superadmin: not ({SUPERADMIN} ?:= Current) implies not ({ADMIN} ?:= rem_user)
 		local
 			i : INTEGER
 		do

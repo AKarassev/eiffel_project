@@ -48,7 +48,7 @@ feature{ANY}
 
 	to_string : STRING is
 		do
-			Result :="%N Titre :"+titre+" %N Nombre :" + nb_exemplaire.to_string 
+			Result :="%N Titre : "+titre+" %N Nombre : " + nb_exemplaire.to_string 
 		end
 
        is_equal(other: like Current): BOOLEAN is

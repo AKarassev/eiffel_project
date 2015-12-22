@@ -13,7 +13,6 @@ main is
 		mt1 : MEDIATHEQUE
 		u1 : USER
 		am1 : ARRAY[MEDIA]
-		i : INTEGER	
 	do
 		io.put_string("%N%N-------- MEDIATHEQUE -------- %N%N")
 
@@ -27,20 +26,8 @@ main is
 		io.put_string("%N ------- Test de fichier_media ------- %N")
 		create u1.make("e130159c", "eflamm", "ollivier", mt1)
 		create am1.make(1,1)
-		am1 := u1.rechercher("Livre")
-	
-		from 
-			i := 1
-		until
-			i = am1.upper
-		loop
-			io.put_string(am1.item(i).to_string + "%N")
-			i := i + 1 	
-		end
-		
-		
-		
-
+		am1 := u1.rechercher("2004", 2)
+		io.put_string(mt1.to_string_array_media(am1))
 	end
 
 

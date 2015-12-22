@@ -64,41 +64,64 @@ feature{ANY}
 	end
 
 	-- Faire une recherche parmi les médias, dont les données pourraient correpsondre à la chaîne de caractère
-	-- On peut faire une recherche uniquement par livre ou par DVD, si s contient exactement "Livre" ou "DVD"
+	-- Si cat = 0 alors on fait une recherche sur tous les médias
+	-- Si cat = 1 alors on fait une recherche sur tous les livre
+	-- Si cat = 2 alors on fait une recherche sur tous les dvd
 	-- TODO on peut améliorer le filtre
-	rechercher (s : STRING) : ARRAY[MEDIA] is
+	-- pre: cat doit être compris entre 0 et 2
+	rechercher (s : STRING; cat : INTEGER) : ARRAY[MEDIA] is
+	require
+		is_categorie : cat >= 0 and cat <= 2
 	local
-		i : INTEGER
+		i, j : INTEGER
 		out_medias : ARRAY[MEDIA]
+		array_split : ARRAY[STRING]
 		m : MEDIA
 	do
 		create out_medias.make(1,1)
+		create array_split.make(1,1)
+		s.append(" |")  		--FIX bug de split, qui jète le dernier élément
+		array_split := s.split
+
 		from 
 			i := 1
 		until
 			i = mediatheque.getmedias.upper
 		loop
 			m := mediatheque.getmedias.item(i)
-
-
-			if s.is_equal("Livre") and {LIVRE} ?:= m then
-				out_medias.add_first(m)
-			elseif s.is_equal("DVD") and {DVD} ?:= m then
-				out_medias.add_first(m)
-			else
-				if m.to_string.has_substring(s) then
-					out_medias.add_first(m)
-				end
+			from
+				j := 1
+			until
+				j = array_split.upper
+			loop
+				inspect cat
+				when 0 then
+					if m.to_string.has_substring(array_split.item(j)) then
+						out_medias.add_first(m)
+					end
+				when 1 then
+					if m.to_string.has_substring(array_split.item(j)) and {LIVRE} ?:= m then
+						out_medias.add_first(m)
+					end
+				when 2 then
+					if m.to_string.has_substring(array_split.item(j)) and {DVD} ?:= m then
+						out_medias.add_first(m)
+					end
+				end	
+				j := j + 1
 			end
-					
 			i := i + 1 	
 		end
-
 		Result := out_medias
 	end
+
        
 	-- pre : le nombre d'emprunt actuel du user doit être strictement inférieur au quota qu'il lui a été accordé 
+	-- pre : le media doit exister dans la mediatheque TODO
 	-- pre : le media doit avoir au moins un exemplaire disponible
+	-- post : le nombre d'emprunt de l'utilisateur est incrémenté de 1 TODO
+	-- post : le nombre d'exemplaire disponible pour le média concerné est décrémenté de 1 TODO
+	-- post : le nouvel emprunt a bien été enregistré dans la médiathèque TODO
 	emprunter (m : MEDIA; de : TIME) is
 		require
 			quota_atteint : nb_emprunt < quota
@@ -115,16 +138,17 @@ feature{ANY}
 			m.setnb_exemplaire(m.getnb_exemplaire-1) 	-- on décrémente le nombre d'exemplaires disponibles pour le media
 		end
 
-	-- on rend le premiere occurence du media emprunté
-	-- pre : on ne peut pas rendre plus de medias que n'on en a emprunté
+	-- on rend le plus ancien emprunt du media emprunté
+	-- pre : on ne peut pas rendre plus de médias que l'on n’en a emprunté
 	-- pre : il doit exister un emprunt correspondant au media, dont is_rendu = False TODO
+	-- post : le media concerné voit son nombre d'exemplaire incrémenté de 1 TODO
+	-- post : l'emprunt concerné voit la valeur de is_rendu passé à True TODO 
 	rendre (m : MEDIA; dr : TIME) is
 		require
 			nb_emprunt_minimum : nb_emprunt >= 0
 		local
 			e : EMPRUNT
 		do
-			-- TODO on récupère l'emprunt le plus ancien avec is_rendu = false, on incrémente le nombre d'exemplaires disponibles et on passe is_rendu := True
 			e := mediatheque.oldest_emprunt(mediatheque.get_same_emprunts_non_rendu(Current, m))
 			e.setis_rendu(True)			
 			-- TODO que faire si l'utilisateur le rend en retard

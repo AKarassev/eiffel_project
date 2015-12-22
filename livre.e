@@ -33,7 +33,7 @@ feature{ANY}
 
 	to_string : STRING is
 		do
-			Result := Precursor + "%N Auteur :" + auteur + "%N"
+			Result := Precursor + "%N Auteur : " + auteur + "%N"
 		end
 
 
