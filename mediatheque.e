@@ -35,6 +35,7 @@ feature{ANY}
 	
 	--Construit la base de données des utilisateurs de la mediatheque à partir d'un fichier
 	--path : chemin du fichier texte décrivant les utilisateurs
+	-- pre : le fichier en entrée doit être bien construit
 	--post: les users ont été ajouté au tableau							TODO
 	fichier_user ( path : STRING ) is
 		local
@@ -108,6 +109,7 @@ feature{ANY}
 
 	--Construit la base de données des médias de la mediatheque à partir d'un fichier
 	--path : chemin du fichier texte décrivant les médias
+	-- pre : le fichier en entrée doit être bien construit
 	--post: les médias ont été ajouté au tableau							TODO
 	fichier_media ( path : STRING ) is
 		local
@@ -265,7 +267,7 @@ feature{ANY}
 			until
 				i = tuser.upper
 			loop
-				str.append("%N"+tuser.item(i).to_string+"%N")
+				str.append(tuser.item(i).to_string+"%N")
 				i := i+1
 			end
 			Result := str
@@ -324,17 +326,67 @@ feature{ANY}
 
 
 
-     
+     	-- pre : le nouvel utilisateur n'existe pas DELETED
+	-- post : le nouvel utilisateur existe
  	ajouteruser (new_user : USER) is
+		require 
+			--user_not_exists : has_user(new_user) = False
 		do
-			tuser.add_first(new_user)	
+			if has_user(new_user) = False then
+				tuser.add_first(new_user)
+			end
+		ensure
+			user_exists : has_user(new_user) = True	
 		end
 
-
-
- 	ajoutermedia (new_media : MEDIA) is
+	-- pre: old_user existe
+	modifieruser (old_user, new_user : USER) is
+		require
+			user_exists : has_user(old_user) = True
+		local
+			i : INTEGER
 		do
-			tmedia.add_first(new_media)	
+			i := indexof_user(old_user)
+			tuser.put(new_user, i)	
+		end
+
+	supprimeruser (rem_user : USER) is
+		require
+			user_exists : has_user(rem_user) = True
+		local
+			i : INTEGER
+		do
+			i := indexof_user(rem_user)
+			tuser.remove(i)
+		ensure
+			user_not_exists : has_user(rem_user) = False
+		end
+
+	-- pre : l'utilisateur existe
+	-- post : l'utilisateur est un administrateur TODO
+	upgradeuser (up_user : USER) is
+		require
+			user_exists : has_user(up_user) = True
+		local
+			i : INTEGER
+			new_admin : ADMIN
+		do
+			i := indexof_user(up_user)
+			create new_admin.make_from_user(up_user)
+			modifieruser(up_user, new_admin)
+		end -- upgrade_user
+
+	-- pre : le media n'existe pas DELETED
+	-- post : le media existe
+ 	ajoutermedia (new_media : MEDIA) is
+		require
+			--media_not_exists : has_media(new_media) = False
+		do
+			if has_media(new_media) = False then
+				tmedia.add_first(new_media)
+			end
+		ensure
+			media_exists : has_media(new_media) = True	
 		end
 
 	ajouteremprunt (new_emprunt : EMPRUNT) is
@@ -348,6 +400,11 @@ feature{ANY}
 			Result := tuser
 		end  
 
+	getsu : SUPERADMIN is
+		do
+			Result := su
+		end
+
 	getmedias : ARRAY[MEDIA] is
 		do
 			Result := tmedia
@@ -356,12 +413,107 @@ feature{ANY}
 	getemprunts : ARRAY[EMPRUNT] is
 		do
 			Result := temprunt
-		end  
+		end
+
+	-- Renvoie l'indice de l'utilisateur, sinon upper du tableau
+	indexof_user ( u : USER ) : INTEGER is
+		local
+			i : INTEGER
+			found : BOOLEAN
+		do
+			Result := tuser.upper
+			from i:= 1 found := False 
+			until i = tuser.upper or found = True
+			loop
+				if u.is_equal(tuser@i) then
+					Result := i
+					found := True
+				end
+				i := i + 1
+			end
+		end
+
+	-- Renvoie l'indice de l'utilisateur, sinon upper du tableau
+	indexof_media ( m : MEDIA ) : INTEGER is
+		local
+			i : INTEGER
+			found : BOOLEAN
+		do
+			Result := tmedia.upper
+			from i:= 1 found := False 
+			until i = tmedia.upper or found = True
+			loop
+				if m.is_equal(tmedia@i) then
+					Result := i
+					found := True
+				end
+				i := i + 1
+			end
+		end
+
+	-- Renvoie l'indice de l'utilisateur, sinon upper du tableau
+	has_user ( u : USER ) : BOOLEAN is
+		local
+			i : INTEGER
+			found : BOOLEAN
+		do
+			Result := False
+			from i:= 1 found := False 
+			until i = tuser.upper or found = True
+			loop
+				if u.is_equal(tuser.item(i)) then
+					found := True
+				end
+				i := i + 1
+			end
+			Result := found
+		end
+
+	-- Renvoie l'indice de l'utilisateur, sinon upper du tableau
+	has_media ( m : MEDIA ) : BOOLEAN is
+		local
+			i : INTEGER
+			found : BOOLEAN
+			type : CHARACTER
+		do
+			-- On analyse le type du media passé en paramètre
+			if {LIVRE} ?:= m then
+				type := 'l'
+			elseif {DVD} ?:= m then
+				type := 'd'
+			else
+				type := 'm'
+			end
+
+			-- On fait la comparaison seulement si le type de l'élément à l'indice i est le même que celui média passé en paramètre
+			from i:= 1 found := False 
+			until i = tmedia.upper or found = True
+			loop
+				inspect type
+				when 'l' then
+					if {LIVRE} ?:= tmedia.item(i)  then
+						found := tmedia.item(i).is_equal(m)
+					end
+				when 'd' then			
+					if {DVD} ?:= tmedia.item(i) then
+						found := tmedia.item(i).is_equal(m)
+					end
+				when 'm' then
+					found := tmedia.item(i).is_equal(m)
+				end -- inspect
+				i := i + 1
+			end
+			Result := found
+		end
+	  
 
 	--Retourne un tableau d'emprunts qui ont le même user et le même média emprunté et non rendu
-	--pre: l'utilisateur doit exister TODO
-	--pre: le media doit exister TODO
-	get_same_emprunts_non_rendu(u : USER; m : MEDIA) : ARRAY[EMPRUNT] is
+	--Si les paramètres sont passés à Void , tous les emprunts non rendus sont retournés
+	--Si l'utilisateur est à Void, on fait la recherche sur le média passé en paramètre
+	--Si le media est à Void, on fait la recherche sur l'utilisateur passé en paramètre
+	--pre: si passé en paramètre, l'utilisateur doit exister TODO
+	--pre: si passé en paramètre, le media doit exister TODO
+	get_emprunts_non_rendus(u : USER; m : MEDIA) : ARRAY[EMPRUNT] is
 		local
 			i : INTEGER
 			out_emprunt : ARRAY[EMPRUNT]
@@ -372,7 +524,23 @@ feature{ANY}
 			until
 				i = temprunt.upper
 			loop
-				if u.is_equal(temprunt.item(i).getuser) and m.is_equal(temprunt.item(i).getmedia) and temprunt.item(i).getis_rendu = False then
+				if u = Void and m = Void and temprunt.item(i).getis_rendu = False then
+					io.put_string("%Nu=Void & m=Void%N")
+					out_emprunt.add_first(temprunt.item(i))
+				elseif u = Void then
+					--FIX On rajoute un second if, au cas où m serait vide
+					if m.is_equal(temprunt.item(i).getmedia) and temprunt.item(i).getis_rendu = False then
+						io.put_string("%Nu=Void%N")
+						out_emprunt.add_first(temprunt.item(i))
+					end
+				elseif m = Void  then
+					--FIX On rajoute un second if, au cas où u serait vide
+					if u.is_equal(temprunt.item(i).getuser) and temprunt.item(i).getis_rendu = False then
+						io.put_string("%N m=Void%N")
+						out_emprunt.add_first(temprunt.item(i))
+					end
+				elseif u.is_equal(temprunt.item(i).getuser) and m.is_equal(temprunt.item(i).getmedia) and temprunt.item(i).getis_rendu = False then
+					io.put_string("%NAucun n'est Void%N")					
 					out_emprunt.add_first(temprunt.item(i))
 				end					
 				i := i + 1 	

@@ -7,7 +7,7 @@ inherit MEDIA
 	redefine to_string end
 
 creation{ANY}
-	make_dvd
+	make_dvd, make_dvd_from_media
 
 feature{}
 	realisateur : ARRAY[STRING]
@@ -25,7 +25,15 @@ feature{ANY}
 		acteur.copy(act)
 		type := ty
 		annee := an
-		mediatheque := mt
+	end
+
+	make_dvd_from_media ( m : MEDIA ) is
+	do
+		make(m.gettitre, m.getnb_exemplaire, m.getmediatheque)
+		create realisateur.make(1,1)
+		create acteur.make(1,1)	
+		type := ""
+		annee := 0	
 	end
 
 	setrealisateur (real : ARRAY[STRING]) is

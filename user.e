@@ -8,7 +8,7 @@ inherit
 	redefine is_equal end
 
 creation{ANY}
-	make, setnom, setprenom
+	make, setnom, setprenom, setid
 
 feature{}
 	nom, prenom, iduser : STRING
@@ -17,7 +17,7 @@ feature{}
 
 feature{ANY}
 	
-	--pre : vérifier que l'identifiant est unique			TODO
+	--pre : vérifier que l'identifiant est unique (parmi tous les utilisateurs et le superutilisateur)			TODO
 	make (id, p, n : STRING; mt : MEDIATHEQUE)  is
 		do
 			iduser := id
@@ -34,10 +34,26 @@ feature{ANY}
 			nom := n
 		end
 
-	setprenom (n : STRING) is
+	setprenom (p : STRING) is
 		-- Modification du prénom de l'utilisateur
 		do
-			prenom := n
+			prenom := p
+		end
+
+	--pre : cet identifiant doit être unique TODO
+	setid (id : STRING) is
+		-- Modification de l'identifiant de l'utilisateur
+		do
+			iduser := id
+		end
+
+	-- Modification du quota de l'utilisateur
+	--pre: le quota doit être positif
+	setquota (q : INTEGER) is
+		require
+			q >= 0
+		do
+			quota := q
 		end
 
 	getnom : STRING is
@@ -62,6 +78,18 @@ feature{ANY}
 	do
 		Result := mediatheque
 	end
+
+	getnb_emprunt : INTEGER is
+		--Retourne l'identifiant
+		do
+			Result:=nb_emprunt
+		end
+
+	getquota : INTEGER is
+		--Retourne l'identifiant
+		do
+			Result:=quota
+		end
 
 	-- Faire une recherche parmi les médias, dont les données pourraient correpsondre à la chaîne de caractère
 	-- Si cat = 0 alors on fait une recherche sur tous les médias
@@ -115,7 +143,7 @@ feature{ANY}
 		Result := out_medias
 	end
 
-       
+        -- L'utilisateur emprunte un média
 	-- pre : le nombre d'emprunt actuel du user doit être strictement inférieur au quota qu'il lui a été accordé 
 	-- pre : le media doit exister dans la mediatheque TODO
 	-- pre : le media doit avoir au moins un exemplaire disponible
@@ -138,7 +166,7 @@ feature{ANY}
 			m.setnb_exemplaire(m.getnb_exemplaire-1) 	-- on décrémente le nombre d'exemplaires disponibles pour le media
 		end
 
-	-- on rend le plus ancien emprunt du media emprunté
+	-- L'utilisateur rend son plus ancien emprunt du media emprunté
 	-- pre : on ne peut pas rendre plus de médias que l'on n’en a emprunté
 	-- pre : il doit exister un emprunt correspondant au media, dont is_rendu = False TODO
 	-- post : le media concerné voit son nombre d'exemplaire incrémenté de 1 TODO
@@ -149,26 +177,60 @@ feature{ANY}
 		local
 			e : EMPRUNT
 		do
-			e := mediatheque.oldest_emprunt(mediatheque.get_same_emprunts_non_rendu(Current, m))
+			e := mediatheque.oldest_emprunt(mediatheque.get_emprunts_non_rendus(Current, m))
 			e.setis_rendu(True)			
 			-- TODO que faire si l'utilisateur le rend en retard
 			m.setnb_exemplaire(m.getnb_exemplaire+1)			
 			nb_emprunt := nb_emprunt + 1
 		end
 
+	-- L'utilisateur consulte ses emprunts, si is_retard est à 1 seuls les emprunts en retard sont retournés
+	get_emprunts (is_retard : BOOLEAN) : ARRAY[EMPRUNT] is
+	local
+		array_emprunt : ARRAY[EMPRUNT]
+		out_emprunt : ARRAY[EMPRUNT]
+		i : INTEGER	
+	do
+		create array_emprunt.make(1,1)
+		create out_emprunt.make(1,1)
+		if is_retard = False then
+			out_emprunt := mediatheque.get_emprunts_non_rendus(Current, Void) 
+		else -- is_retard = True
+			array_emprunt := mediatheque.get_emprunts_non_rendus(Current, Void) 
+			from
+				i := 1
+			until
+				i = array_emprunt.upper
+			loop
+				-- on stocke tous ceux qui sont en retard
+				if array_emprunt.item(i).retard = True then
+					out_emprunt.add_first(array_emprunt.item(i))
+				end
+				i := i + 1
+			end	
+		end	
+		
+		Result := out_emprunt
+	end
+
 	to_string : STRING is
 		do
-			Result := "%N Identifiant :"+iduser+"%N Nom: "+nom+"%N Prénom: "+prenom+"%N"
+			Result := "%N Identifiant : "+iduser+"%N Nom: "+nom+"%N Prénom: "+prenom+"%N"
 		end
 
 	--L'égalité de deux users se fait uniquement sur iduser
-	is_equal(other : like Current) : BOOLEAN is
+	-- note : les types ont été forcé à USER pour pouvoir comparer des ADMIN avec des USER
+	is_equal(other : USER) : BOOLEAN is
 		do
+--			io.put_string("CURRENT "+iduser+"%N")
+--			io.put_string("OTHER "+other.getid+"%N")
+--			io.put_string("RESULT "+iduser.is_equal(other.getid).to_string+"%N")
 			Result := iduser.is_equal(other.getid)
 		end
 
 	--Méthode nécessaire pour implémenter is_equal
-	infix "<" (other: like Current) : BOOLEAN is
+	-- note : les types ont été forcé à USER pour pouvoir comparer des ADMIN avec des USER
+	infix "<" (other: USER) : BOOLEAN is
 		do	
 			Result := iduser < other.getid
 		end

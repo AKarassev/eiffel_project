@@ -30,11 +30,11 @@ feature{ANY}
 		--post : le nouveau user existe dans le tableau
 		--post : la taille du tableau est incrémentée
 		require
-			user_not_exists : mediatheque.getusers.has(new_user) = False	
+			user_not_exists : mediatheque.has_user(new_user) = False	
 		do
 			mediatheque.ajouteruser(new_user) -- Add a new item in first position : [...] all other items are shifted right.
 		ensure
-			user_exists : mediatheque.getusers.has(new_user) = True
+			user_exists : mediatheque.has_user(new_user) = True
 			array_length_increment : mediatheque.getusers.upper = old mediatheque.getusers.upper + 1 
 		end -- fonction ajouteruser
 
@@ -44,17 +44,12 @@ feature{ANY}
        modifieruser (old_user, new_user: USER) is
 		-- Modification d'un utilisateur se trouvant dans un tableau d'utilisateur
 		-- pre: old_user doit exister
-		-- pre: new_user doit avoir le même identifiant que old_user
 		-- pre: seul un superadministrateur peut supprimer un administrateur
 		require
-			user_exists : mediatheque.getusers.has(old_user) = True
-			user_equal : new_user.is_equal(old_user)
+			user_exists : mediatheque.has_user(old_user) = True
 			is_superadmin: not ({SUPERADMIN} ?:= Current) implies not ({ADMIN} ?:= old_user)
-		local
-			i : INTEGER
 		do
-			i := mediatheque.getusers.first_index_of(old_user)
-			mediatheque.getusers.force(new_user, i)			
+			mediatheque.modifieruser(old_user, new_user)		
 		end --fonction modifieruser
 			
 		
@@ -65,17 +60,15 @@ feature{ANY}
 		-- pre: seul un superadministrateur peut supprimer un autre administrateur	
 		-- post: le user correspondant à l'identifiant n'existe plus dans le tableau
 		-- post: la taille du tableau est décrémentée
-
 		require
-			user_exists : mediatheque.getusers.has(rem_user) = True
+			user_exists : mediatheque.has_user(rem_user) = True
 			is_superadmin: not ({SUPERADMIN} ?:= Current) implies not ({ADMIN} ?:= rem_user)
 		local
 			i : INTEGER
 		do
-			i := mediatheque.getusers.first_index_of(rem_user)
-			mediatheque.getusers.remove(i)
+			mediatheque.supprimeruser(rem_user)
 		ensure
-			user_not_exists : mediatheque.getusers.has(rem_user) = False
+			user_not_exists : mediatheque.has_user(rem_user) = False
 			array_length_decrement : mediatheque.getusers.upper = old mediatheque.getusers.upper - 1 		
 		end -- fonction supprimeruser
 

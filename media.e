@@ -46,29 +46,25 @@ feature{ANY}
 		Result := nb_exemplaire
 	end
 
+	getmediatheque : MEDIATHEQUE is
+	do
+		Result := mediatheque
+	end
+
 	to_string : STRING is
 		do
 			Result :="%N Titre : "+titre+" %N Nombre : " + nb_exemplaire.to_string 
 		end
 
-       is_equal(other: like Current): BOOLEAN is
-	local
-		stra, strb : STRING
-       do
-		stra := other.gettitre
-		strb := titre
-		Result := (stra.is_equal(strb))
+       	is_equal(other: like Current): BOOLEAN is
+       	do
+		Result := titre.is_equal(other.gettitre)
+       	end
 
-       end
-
-	infix "<" (other : MEDIA): BOOLEAN is
-	local
-		stra, strb : STRING
-       do
-		stra := other.gettitre
-		strb := titre
-		Result := (stra < strb)
-       end
+	infix "<" (other : like Current): BOOLEAN is
+       	do
+		Result := titre < other.gettitre
+       	end
 		
 			
 
