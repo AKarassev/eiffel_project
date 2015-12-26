@@ -36,15 +36,15 @@ do
 	from 
 		choix := -1
 	until 
-		choix >= 0 and choix <= 2
+		choix = 0 
 	loop
 		io.put_string("1 - Se connecter à la médiathèque %N")
 		io.put_string("0 - Quitter %N")
 		
 		io.put_string("%NEntrez votre choix %N")
-		io.read_line
-		choix := io.last_string.to_integer
-
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
 		inspect choix
 		when 1 then
 			authentification
@@ -97,29 +97,31 @@ menu is
 local
 	choix : INTEGER
 do
-
-	io.put_string("%NMENU%N")
-	io.put_string("%N 1 - Emprunter un média")
-	io.put_string("%N 2 - Rendre un média")
-	io.put_string("%N 3 - Consulter ses emprunts%N")
-	if {ADMIN} ?:= user then
-	io.put_string("%N 4 - Gérer les utilisateurs")
-	io.put_string("%N 5 - Gérer les médias")
-	io.put_string("%N 6 - Gérer les emprunts%N")
-	io.put_string("%N 7 - Importer un fichier")
-	io.put_string("%N 8 - Exporter un fichier%N")
-	io.put_string("%N 9 - Paramètres de la médiathèque%N")
-	end -- if
-	io.put_string("%N 0 - Se déconnecter %N")
-
 	from
 		choix := -1
 	until
-		choix >= 0 and choix <= 6
+		choix = 0
 	loop
+
+		io.put_string("%NMENU%N")
+		io.put_string("%N 1 - Emprunter un média")
+		io.put_string("%N 2 - Rendre un média")
+		io.put_string("%N 3 - Consulter ses emprunts%N")
+		if {ADMIN} ?:= user then
+		io.put_string("%N 4 - Gérer les utilisateurs")
+		io.put_string("%N 5 - Gérer les médias")
+		io.put_string("%N 6 - Gérer les emprunts%N")
+		io.put_string("%N 7 - Importer un fichier")
+		io.put_string("%N 8 - Exporter un fichier%N")
+		io.put_string("%N 9 - Paramètres de la médiathèque%N")
+		end -- if
+		io.put_string("%N 0 - Se déconnecter %N")
+
+
 		io.put_string("%NEntrez votre choix %N")
-		io.read_line
-		choix := io.last_string.to_integer
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
 
 		if {ADMIN} ?:= user then
 			inspect choix
@@ -206,32 +208,49 @@ do
 	end -- loop	
 	io.put_string("%NAppuyez sur ENTREE pour revenir au menu principal%N")
 	io.read_line
-	menu
 end -- consulter_ses_emprunts
 
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+-----------------------------------  GERER LES UTILISATEURS  -------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
 
 gerer_les_utilisateurs is
 local 
 	choix : INTEGER
 do
-	io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
-	io.put_string("%N 1 - Ajouter un utilisateur")
-	io.put_string("%N 2 - Modifier un utilisateur")
-	io.put_string("%N 3 - Supprimer un utilisateur")
-	io.put_string("%N 4 - Afficher tous les utilisateurs")
-	if {SUPERADMIN} ?:= user then
-	io.put_string("%N 5 - Promouvoir un utilisateur %N")
-	end -- if
-	io.put_string("%N 0 - Quitter %N")
-
 	from 
 		choix := -1
 	until 
-		choix >= 0 and choix <= 5
+		choix = 0
 	loop
+		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
+		io.put_string("%N 1 - Ajouter un utilisateur")
+		io.put_string("%N 2 - Modifier un utilisateur")
+		io.put_string("%N 3 - Supprimer un utilisateur")
+		io.put_string("%N 4 - Afficher tous les utilisateurs")
+		if {SUPERADMIN} ?:= user then
+		io.put_string("%N 5 - Promouvoir un utilisateur %N")
+		end -- if
+		io.put_string("%N 0 - Quitter %N")
+
 		io.put_string("%NEntrez votre choix %N")
-		io.read_line
-		choix := io.last_string.to_integer
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
 
 		inspect choix
 		when 1 then
@@ -243,8 +262,15 @@ do
 		when 4 then
 			afficher_utilisateurs
 		when 5 then
+			if {SUPERADMIN} ?:= user then
+				promouvoir_utilisateur
+			else
+				io.put_string("%NChoix incorrect%N")	
+			end
 		when 0 then
 			menu
+		else
+			io.put_string("%NChoix incorrect%N")		
 		end -- inspect		
 	end -- loop
 	--retour au menu principal
@@ -273,7 +299,7 @@ do
 		create tmp_u.make(id, "", "", mt)
 		is_unique := not (mt.getusers.has(tmp_u))
 		if is_unique = False then 
-			io.put_string("%NCet identifiant existe déjà")
+			io.put_string("%NCet identifiant existe déjà, veuillez en choisir un autre%N")
 		end -- if
 	end -- loop
 	-- On entre le nom du nouvel utilisateur
@@ -291,10 +317,7 @@ do
 	create u.make(id, p, n, mt)
 	admin.ajouteruser(u)
 	io.put_string("%NUtilisateur ajouté%N")
-	-- retour au menu de gestion des utilisateurs
-	gerer_les_utilisateurs	
 end -- ajouter_utilisateur
-
 
 
 modifier_utilisateur is
@@ -307,17 +330,19 @@ local
 do
 	io.put_string("%NModifier un utilisateur %N")
 	io.put_string("%NEntrez l'identifiant de l'utilisateur que vous voulez modifier:")
+	-- on récupère l'utilisateur à modifier
 	from 	
-		is_unique := True
+		is_unique := False
 		continue := 'y' 
-	until 	is_unique = False or continue = 'n'
+	until 	
+		is_unique = True or continue = 'n'
 	loop
 		io.put_string("%NIdentifiant: ")
 		io.read_line
 		id := ""
 		id.copy(io.last_string)
 		create tmp_u.make(id, "", "", mt)
-		is_unique := mt.getusers.has(tmp_u)
+		is_unique := mt.has_user(tmp_u)
 		if is_unique = False then 
 			io.put_string("%NCet utilisateur n'existe pas")
 			io.put_string("%NVoulez-vous continuer?[y/n]")
@@ -330,19 +355,25 @@ do
 					io.put_string("%NChoix incorrect")
 				end -- if
 			end -- loop
+		else -- is_unique = True
+			continue := 'n'
 		end -- if
 	end -- loop
 
+	-- si l'utilisateur n'existe pas, et l'utilisateur ne souhaite pas continuer
+	-- si l'utilisateur existe
 	if continue = 'n' then
 		-- On récupère l'utilisateur correspondant à l'identifiant
-		i := mt.getusers.first_index_of(tmp_u)
+		i := mt.indexof_user(tmp_u)
 		u := mt.getusers.item(i)
+		io.put_string("Utilisateur trouvé%N")
 	
 		-- On modifie l'utilisateur récupéré précédemment
 		from 	
 			choix := -1
 			continue := 'y'
-		until 	(choix >= 0 and choix <= 4) and ( continue = 'n' )
+		until 	
+			(choix >= 0 and choix <= 4) and ( continue = 'n' )
 		loop
 			io.put_string("%NQue voulez-vous modifier")
 			io.put_string("%N 1 - Identifiant")
@@ -350,9 +381,10 @@ do
 			io.put_string("%N 3 - Prenom")
 			io.put_string("%N 4 - Quota d'emprunts")
 			io.put_string("%N 0 - Quitter")
-			io.put_string("%NEntrez votre choix %N")
-			io.read_line
-			choix := io.last_string.to_integer
+			io.put_string("%N%NEntrez votre choix %N")
+			io.read_integer
+			io.read_line -- FIX read_integer saute le prochain read_line
+			choix := io.last_integer
 			inspect choix
 			when 1 then 
 				from 	is_unique := False
@@ -363,8 +395,8 @@ do
 					id := ""
 					id.copy(io.last_string)
 					create tmp_u.make(id, "", "", mt)
-					is_unique := mt.getusers.has(tmp_u)
-					if is_unique = True then 
+					is_unique :=  not mt.has_user(tmp_u)
+					if is_unique = False then 
 						io.put_string("%NCet identifiant existe déjà")
 					end -- if
 				end -- loop 
@@ -380,71 +412,56 @@ do
 				io.read_line
 				p := ""
 				p.copy(io.last_string)
-				user.setprenom(p)	
+				u.setprenom(p)	
 			when 4 then
 				from q := -1
 				until q >= 0
 				loop
 					io.put_string("Quota: ")
-					io.read_line
-					q.copy(io.last_string.to_integer)
+					io.read_integer
+					io.read_line -- FIX read_integer saute le prochain read_line
+					q := io.last_integer
 					if q < 0 then
 						io.put_string("%NLe quota doit être positif")
 					else
-						user.setquota(q)
+						u.setquota(q)
 					end -- if 
 				end -- loop
 			when 0 then
 				continue := 'n'
 			end -- inspect
-
-			io.put_string("%NVoulez-vous continuer?[y/n]")
-			from continue := 'a'
-			until continue = 'y' or continue = 'n'
-			loop
-				io.read_character
-				continue := io.last_character
-				if not ( continue = 'y' or continue = 'n' ) then
-					io.put_string("%NChoix incorrect")
-				end -- if
-			end -- loop
-		
 		end -- loop
 
 		-- on modifie l'utilisateur
 		admin.modifieruser(mt.getusers.item(i), u)
 		io.put_string("%NUtilisateur modifié%N")
 	end -- if
-
-
-	-- retour au menu de gestion des utilisateurs
-	gerer_les_utilisateurs
 end -- modifier_utilisateur
+
+
 
 supprimer_utilisateur is
 local
 	tmp_u : USER
-	tmp_a : ADMIN
-	is_unique : BOOLEAN
+	user_exists : BOOLEAN
 	continue : CHARACTER
 	id : STRING
 do
 	io.put_string("%NSupprimer un utilisateur %N")
-	io.put_string("%NEntrez l'identifiant de l'utilisateur que vous voulez modifier:")
-	from 	
-		is_unique := True
-		continue := 'y' 
-	until 	is_unique = False and continue = 'n'
+	io.put_string("%NEntrez l'identifiant de l'utilisateur que vous voulez supprimer:")
+	from 	continue := 'y' 
+	until 	continue = 'n'
 	loop
+		user_exists := False
 		io.put_string("%NIdentifiant: ")
 		io.read_line
 		id := ""
 		id.copy(io.last_string)
 		create tmp_u.make(id, "", "", mt)
-		is_unique := mt.getusers.has(tmp_u)
-		if is_unique = False then 
+		user_exists := mt.has_user(tmp_u)
+		if user_exists = False then 
 			io.put_string("%NCet utilisateur n'existe pas")
-			io.put_string("%NVoulez-vous continuer?[y/n]")
+			io.put_string("%NVoulez-vous continuer?[y/n]%N")
 			from continue := 'a'
 			until continue = 'y' or continue = 'n'
 			loop
@@ -460,8 +477,6 @@ do
 			io.put_string("%NUtilisateur supprimé")
 		end -- if
 	end -- loop
-	-- retour au menu de gestion des utilisateurs
-	gerer_les_utilisateurs
 end
 
 afficher_utilisateurs is
@@ -471,9 +486,62 @@ do
 	io.put_string(mt.to_string_all_user)
 	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
 	io.read_line
-	-- retour au menu de gestion des utilisateurs
-	gerer_les_utilisateurs
 end
+
+
+promouvoir_utilisateur is
+local
+	tmp_u : USER
+	is_unique : BOOLEAN
+	continue : CHARACTER
+	id : STRING
+do
+	io.put_string("%NPromouvoir un utilisateur %N")
+	io.put_string("%NEntrez l'identifiant de l'utilisateur que vous voulez promouvoir:")
+	from 	
+		is_unique := False
+		continue := 'y' 
+	until 	is_unique = True and continue = 'n'
+	loop
+		io.put_string("%NIdentifiant: ")
+		io.read_line
+		id := ""
+		id.copy(io.last_string)
+		create tmp_u.make(id, "", "", mt)
+		is_unique := mt.has_user(tmp_u)
+		if is_unique = False then 
+			io.put_string("%NCet utilisateur n'existe pas")
+			io.put_string("%NVoulez-vous continuer?[y/n]")
+			from continue := 'a'
+			until continue = 'y' or continue = 'n'
+			loop
+				io.read_character
+				continue := io.last_character
+				if not ( continue = 'y' or continue = 'n' ) then
+					io.put_string("%NChoix incorrect")
+				end -- if
+			end -- loop
+		else -- is_unique = True
+			su.upgradeuser(tmp_u)
+			continue := 'n'
+			io.put_string("%NUtilisateur promu en administrateur")
+		end -- if
+	end -- loop
+end
+
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+------------------------------  FIN DE GERER LES UTILISATEURS  -----------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
 
 end -- class TESTMEDIATHEQUE

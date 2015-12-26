@@ -63,8 +63,6 @@ feature{ANY}
 		require
 			user_exists : mediatheque.has_user(rem_user) = True
 			is_superadmin: not ({SUPERADMIN} ?:= Current) implies not ({ADMIN} ?:= rem_user)
-		local
-			i : INTEGER
 		do
 			mediatheque.supprimeruser(rem_user)
 		ensure
