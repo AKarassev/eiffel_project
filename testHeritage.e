@@ -62,13 +62,16 @@ do
 
 	create ai.make(0,0)
 	create tmp.make("administrateur", "", "", m)
+	m1 := d1
+	d2.copy(m1)
 --	io.put_string("%NTaille d'un tableau vide "+ai.count.to_string+"%N")
 --	io.put_string("%NEQUAL LIVRE LIVRE "+l1.is_equal(l2).to_string+"%N")
 --	io.put_string("%NEQUAL DVD DVD "+d1.is_equal(d2).to_string+"%N")
 --	io.put_string("%NEQUAL LIVRE DVD "+l1.is_equal(d1)+"%N")
 --	io.put_string("%NTO STRING "+m1.to_string+"%N")
 --	io.put_string("%NHAS "+m.has_media(l2).to_string+"%N")
-	io.put_string("%NHAS "+m.has_user(tmp).to_string+"%N")
+--	io.put_string("%NHAS "+m.has_user(tmp).to_string+"%N")
+	io.put_string("%NDVD METHOD "+d2.getannee.to_string+"%N")
 
 end
 

@@ -31,6 +31,7 @@ ecran_titre is
 local
 	choix : INTEGER
 do
+	io.put_string("%N______________________________________________________%N%N")
 	io.put_string("%N%N-------- LOGICIEL DE LA MEDIATHEQUE -------- %N%N")
 
 	from 
@@ -102,7 +103,7 @@ do
 	until
 		choix = 0
 	loop
-
+		io.put_string("%N______________________________________________________%N%N")
 		io.put_string("%NMENU%N")
 		io.put_string("%N 1 - Emprunter un média")
 		io.put_string("%N 2 - Rendre un média")
@@ -134,7 +135,7 @@ do
 			when 4 then
 				gerer_les_utilisateurs
 			when 5 then
-
+				gerer_les_medias
 			when 6 then
 
 			when 7 then
@@ -237,6 +238,7 @@ do
 	until 
 		choix = 0
 	loop
+		io.put_string("%N______________________________________________________%N%N")
 		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
 		io.put_string("%N 1 - Ajouter un utilisateur")
 		io.put_string("%N 2 - Modifier un utilisateur")
@@ -538,8 +540,529 @@ end
 
 
 
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------  GERER LES MEDIAS  ----------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+gerer_les_medias is
+local 
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0
+	loop
+		io.put_string("%N______________________________________________________%N%N")
+		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
+		io.put_string("%N 1 - Gérer les livres")
+		io.put_string("%N 2 - Gérer les DVD")
+		io.put_string("%N 3 - Afficher tous les médias")
+		io.put_string("%N 0 - Quitter %N")
+
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+
+		inspect choix
+		when 1 then
+			gerer_livre
+		when 2 then
+			gerer_dvd
+		when 3 then
+			afficher_medias
+		when 0 then
+			menu
+		else
+			io.put_string("%NChoix incorrect%N")		
+		end -- inspect		
+	end -- loop
+	--retour au menu principal
+end -- gerer_les_utilisateurs
+
+afficher_medias is
+do
+	io.put_string("%N%N%NListe des médias de la médiathèque:%N")
+	io.flush
+	io.put_string(mt.to_string_all_media('m'))
+	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+	io.read_line
+end
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------  GERER LES LIVRES  ----------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+gerer_livre is
+local 
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0
+	loop
+		io.put_string("%N______________________________________________________%N%N")
+		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
+		io.put_string("%N 1 - Ajouter un livre")
+		io.put_string("%N 2 - Modifier un livre")
+		io.put_string("%N 3 - Supprimer un livre")
+		io.put_string("%N 4 - Afficher tous les médias")
+		io.put_string("%N 0 - Quitter %N")
+
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+
+		inspect choix
+		when 1 then
+			ajouter_livre
+		when 2 then
+			modifier_livre
+		when 3 then
+			supprimer_livre
+		when 4 then
+			afficher_livres
+		when 0 then
+			menu
+		else
+			io.put_string("%NChoix incorrect%N")		
+		end -- inspect		
+	end -- loop
+	--retour au menu principal
+end -- gerer_les_utilisateurs
 
 
+ajouter_livre is
+local
+	t, a : STRING
+	l : LIVRE
+do
+	io.put_string("%NAjouter un livre %N")
+
+	-- On entre le titre du livre
+	io.put_string("Titre: ")
+	io.read_line
+	t := ""
+	t.copy(io.last_string)
+
+	-- On entre le nom de l'auteur du livre
+	io.put_string("Auteur: ")
+	io.read_line
+	a := ""
+	a.copy(io.last_string)
+
+	create l.make_livre(t, a, 1, mt)
+	-- si le livre n'existe pas, on l'ajoute à la médiathèque
+	if mt.has_media(l) = False then
+		admin.ajoutermedia(l)
+		io.put_string("%NLivre ajouté%N")
+	else
+		io.put_string("Le livre existe déjà%N")
+		io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+		io.read_line
+	end	
+end
+
+
+modifier_livre is
+local
+	t, a : STRING
+	n : INTEGER
+	old_l, new_l : LIVRE	
+do
+	io.put_string("%NModifier un livre %N")
+	io.put_string("%NEntrer le titre et l'auteur du livre que vous voulez modifier %N")
+
+	-- On entre le titre du livre
+	io.put_string("Titre: ")
+	io.read_line
+	t := ""
+	t.copy(io.last_string)
+
+	-- On entre le nom de l'auteur du livre
+	io.put_string("Auteur: ")
+	io.read_line
+	a := ""
+	a.copy(io.last_string)
+
+	create old_l.make_livre(t, a, 1, mt)
+	-- si le livre acutel existe, on peux le modifier
+	if mt.has_media(old_l) = True then
+		io.put_string("%NLivre trouvé%N%NVeuillez entrer les nouvelles informations du livre%N")
+		-- On entre le titre du livre
+		io.put_string("Titre: ")
+		io.read_line
+		t := ""
+		t.copy(io.last_string)
+
+		-- On entre le nom de l'auteur du livre
+		io.put_string("Auteur: ")
+		io.read_line
+		a := ""
+		a.copy(io.last_string)
+
+		-- On entre le nom de l'auteur du livre
+		io.put_string("Nombre d'exemplaires: ")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		n := io.last_integer
+
+
+		create new_l.make_livre(t, a, n, mt)
+		-- si le nouveau livre n'existe pas, on remplace le livre actuel par le nouveau livre
+		if mt.has_media(new_l) = False then
+			admin.modifiermedia(old_l, new_l)
+		else
+			io.put_string("Le livre existe déjà%N")
+			io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+			io.read_line
+		end
+	else
+		io.put_string("Ce livre n'existe pas%N")
+		io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+		io.read_line
+	end
+end
+
+supprimer_livre is
+local
+	t, a : STRING
+	l : LIVRE
+do
+	io.put_string("%NSupprimer un livre %N")
+	io.put_string("%NEntrer le titre et l'auteur du livre que vous voulez supprimer %N")
+
+	-- On entre le titre du livre
+	io.put_string("Titre: ")
+	io.read_line
+	t := ""
+	t.copy(io.last_string)
+
+	-- On entre le nom de l'auteur du livre
+	io.put_string("Auteur: ")
+	io.read_line
+	a := ""
+	a.copy(io.last_string)
+
+	create l.make_livre(t, a, 1, mt)
+	-- si le livre existe, on le supprime de la médiathèque
+	if mt.has_media(l) = True then
+		admin.supprimermedia(l)
+		io.put_string("%NLivre supprimé%N")
+	else
+		io.put_string("Ce livre n'existe pas%N")
+		io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+		io.read_line
+	end
+end
+
+actualiser_nombre_exemplaire is
+do
+
+end
+
+afficher_livres is
+do
+	io.put_string("%N%N%NListe des médias de la médiathèque:%N")
+	io.flush
+	io.put_string(mt.to_string_all_media('l'))
+	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+	io.read_line
+end
+
+
+--------------------------------------------------------------------------------------------------------
+-----------------------------------  FIN DE GERER LES LIVRES  ------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------
+----------------------------------------  GERER LES DVD  -----------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+gerer_dvd is
+local 
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0
+	loop
+		io.put_string("%N______________________________________________________%N%N")
+		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
+		io.put_string("%N 1 - Ajouter un DVD")
+		io.put_string("%N 2 - Modifier un DVD - PAS IMPLEMENTE")
+		io.put_string("%N 3 - Supprimer un DVD")
+		io.put_string("%N 4 - Afficher tous les DVD")
+		io.put_string("%N 0 - Quitter %N")
+
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+
+		inspect choix
+		when 1 then
+			ajouter_dvd
+		when 2 then
+			modifier_dvd
+		when 3 then
+			supprimer_dvd
+		when 4 then
+			afficher_dvds
+		when 0 then
+			menu
+		else
+			io.put_string("%NChoix incorrect%N")		
+		end -- inspect		
+	end -- loop
+	--retour au menu principal
+end -- gerer_les_utilisateurs
+
+
+
+ajouter_dvd is
+local
+	realisateurs, acteurs : ARRAY[STRING]
+	titre, type, acteur, realisateur : STRING
+	annee : INTEGER
+	continue : CHARACTER
+	new_d : DVD
+do
+	
+	
+	-- On entre le prenom du nouvel utilisateur
+	io.put_string("Titre: ")
+	io.read_line
+	titre := ""
+	titre.copy(io.last_string)
+
+	-- On entre le prenom du nouvel utilisateur
+	io.put_string("Annee: ")
+	io.read_integer
+	io.read_line -- FIX read_integer saute le prochain read_line
+	annee := io.last_integer
+	
+	create realisateurs.make(1,1)
+	create acteurs.make(1,1)
+	create new_d.make_dvd(titre, annee, realisateurs, acteurs, "", 1, mt)
+	if mt.has_media(new_d) = True then
+		io.put_string("Ce DVD existe déjà%N")
+	else
+		
+		from continue := 'y'
+		until continue = 'n'
+		loop
+			io.put_string("Realisateur: ")
+			io.read_line
+			realisateur := ""
+			realisateur.copy(io.last_string)
+			io.put_string(realisateur+"%N")
+			realisateurs.add_first(realisateur)
+			from continue := 'a'
+			until continue = 'y' or continue = 'n'
+			loop
+				io.put_string("Y a-t-il un autre réalisateur?[y/n]%N")
+				io.read_character
+				continue := io.last_character
+				io.read_line -- FIX read_character saute le prochain read_line
+				if not ( continue = 'y' or continue = 'n' ) then
+					io.put_string("Choix incorrect%N")
+				end -- if
+			end -- loop
+		end
+
+	
+		
+		from continue := 'y'
+		until continue = 'n'
+		loop
+			io.put_string("Acteur: ")
+			io.read_line
+			acteur := ""
+			acteur.copy(io.last_string)
+			acteurs.add_first(acteur)
+			from continue := 'a'
+			until continue = 'y' or continue = 'n'
+			loop
+				io.put_string("Y a-t-il un autre acteur?[y/n]%N")
+				io.read_character
+				continue := io.last_character
+				io.read_line -- FIX read_character saute le prochain read_line
+				if not ( continue = 'y' or continue = 'n' ) then
+					io.put_string("Choix incorrect%N")
+				end -- if
+			end -- loop
+		end
+
+		-- On entre le prenom du nouvel utilisateur
+		io.put_string("Type: ")
+		io.read_line
+		type := ""
+		type.copy(io.last_string)
+
+		-- une fois tous les champs remplis on ajoute le dvd dans la médiathèque
+		new_d.setrealisateur(realisateurs)
+		new_d.setacteur(acteurs)
+		new_d.settype(type)
+		admin.ajoutermedia(new_d)
+		io.put_string("DVD ajouté%N")
+	end -- if
+end
+
+
+-- ISSUE : on ne peut pas récupérer les attributs DVD car la variable qui le contient est de type MEDIA, on ne peut pas parser MEDIA en DVD
+modifier_dvd is
+--local
+--	titre, type : STRING
+--	i, annee : INTEGER
+--	old_d, new_d : DVD
+--	is_unique : BOOLEAN
+--	array : ARRAY[STRING]	
+do
+--	io.put_string("%NModifier un DVD %N")
+--	io.put_string("%NEntrer le titre et l'année de sortie du DVD que vous voulez modifier %N")
+
+--	-- On entre le titre du DVD
+--	io.put_string("Titre: ")
+--	io.read_line
+--	titre := ""
+--	titre.copy(io.last_string)
+
+--	-- On entre l'année de sortie du DVD
+--	io.put_string("Année: ")
+--	io.read_line
+--	annee := ""
+--	annee.copy(io.last_string)
+
+--	create array.make(1,1)
+--	create old_d.make_dvd(titre, annee, array, array, "", 1, mt)
+--	-- si le livre actuel existe, on peut le modifier
+--	if mt.has_media(old_d) = True then
+--		io.put_string("%NDVD trouvé, entrez désormais les nouvelles informations du DVD%N")
+--		i := mt.indexof_media(old_d)
+--		new_d :=  mt.getmedias.item(i) 
+--		
+--		-- On entre le prenom du nouvel utilisateur
+--		io.put_string("Titre: ")
+--		io.read_line
+--		titre := ""
+--		titre.copy(io.last_string)
+--		new_d.settitre(titre)
+
+--		-- On entre le prenom du nouvel utilisateur
+--		io.put_string("Annee: ")
+--		io.read_integer
+--		io.read_line -- FIX read_integer saute le prochain read_line
+--		annee := io.last_integer
+--		new_d.setannee(annee)
+
+--		-- On entre le prenom du nouvel utilisateur
+--		io.put_string("Type: ")
+--		io.read_line
+--		type := ""
+--		type.copy(io.last_string)
+--		new_d.settype(type)
+
+--		-- si le nouveau DVD n'existe pas, on remplace le DVD actuel par le nouveau DVD
+--		if mt.has_media(new_d) = False then
+--			admin.modifiermedia(old_d, new_d)
+--		else
+--			io.put_string("Le DVD existe déjà")
+--		end
+--	else
+--		io.put_string("Ce DVD n'existe pas")
+--	end
+end
+
+supprimer_dvd is
+local
+	t : STRING
+	a : INTEGER
+	array : ARRAY[STRING]
+	d : DVD
+do
+	io.put_string("%NSupprimer un DVD %N")
+	io.put_string("%NEntrer le titre et l'année de sortie du DVD que vous voulez supprimer %N")
+
+	-- On entre le prenom du nouvel utilisateur
+	io.put_string("Titre: ")
+	io.read_line
+	t := ""
+	t.copy(io.last_string)
+
+	-- On entre le prenom du nouvel utilisateur
+	io.put_string("Année: ")
+	io.read_integer
+	io.read_line -- FIX read_integer saute le prochain read_line
+	a := io.last_integer
+
+	create array.make(1,1)
+	create d.make_dvd(t, a, array, array, "", 1, mt)
+	-- si le livre existe, on le supprime de la médiathèque
+	if mt.has_media(d) = True then
+		admin.supprimermedia(d)
+		io.put_string("%NDVD supprimé%N")
+	else
+		io.put_string("Ce DVD n'existe pas")
+	end
+end
+
+ajouter_acteur is
+do
+
+end
+
+modifier_acteur is
+do
+
+end
+
+supprimer_acteur is
+do
+
+end
+
+ajouter_realisateur is
+do
+
+end
+
+modifier_realisateur is
+do
+
+end
+
+supprimer_realisateur is
+do
+
+end
+
+afficher_dvds is
+do
+	io.put_string("%N%N%NListe des médias de la médiathèque:%N")
+	io.flush
+	io.put_string(mt.to_string_all_media('d'))
+	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+	io.read_line
+end
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------  FIN DE GERER LES DVD  ------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+------------------------------------  FIN DE GERER LES MEDIAS  -----------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
 
 
 

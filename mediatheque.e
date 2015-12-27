@@ -273,9 +273,15 @@ feature{ANY}
 			Result := str
 		end
 
-	to_string_all_media : STRING is
+
+	-- Retourne une chaîne de caractère affichant tous les médias
+	-- type = 'm', tous les médias
+	-- type = 'l', tous les livres
+	-- type = 'd', tous les dvds
+	to_string_all_media ( type : CHARACTER ) : STRING is
 		local		
 			i : INTEGER
+			found : BOOLEAN
 			str : STRING
 		do
 			create str.make(1)
@@ -284,8 +290,23 @@ feature{ANY}
 			until
 				i = tmedia.upper
 			loop
-				str.append("%N"+tmedia.item(i).to_string+"%N")
-				i := i+1
+				from i:= 1 found := False 
+				until i = tmedia.upper or found = True
+				loop
+					inspect type
+					when 'l' then
+						if {LIVRE} ?:= tmedia.item(i)  then
+							str.append("%N"+tmedia.item(i).to_string+"%N")
+						end
+					when 'd' then			
+						if {DVD} ?:= tmedia.item(i) then
+							str.append("%N"+tmedia.item(i).to_string+"%N")
+						end
+					when 'm' then
+						str.append("%N"+tmedia.item(i).to_string+"%N")
+					end -- inspect
+					i := i + 1
+				end
 			end
 			Result := str
 		end
@@ -376,6 +397,8 @@ feature{ANY}
 			modifieruser(up_user, new_admin)
 		end -- upgrade_user
 
+
+
 	-- pre : le media n'existe pas DELETED
 	-- post : le media existe
  	ajoutermedia (new_media : MEDIA) is
@@ -388,6 +411,33 @@ feature{ANY}
 		ensure
 			media_exists : has_media(new_media) = True	
 		end
+
+	-- pre : le media à modifier doit exister
+	-- post : new_media est unique TODO
+	modifiermedia ( old_media, new_media : MEDIA) is
+		require
+			media_exists : has_media(old_media) = True
+		local
+			i : INTEGER		
+		do
+			i := indexof_media(old_media)
+			tmedia.put(new_media, i)			
+		end
+	
+	-- pre : le media à supprimer doit exister
+	-- post : le media n'existe plus
+	supprimermedia ( rem_media : MEDIA ) is
+		require
+			media_exists : has_media(rem_media) = True
+		local
+			i : INTEGER
+		do
+			i := indexof_media(rem_media)
+			tmedia.remove(i)
+		ensure
+			media_not_exists : has_media(rem_media) = False
+		end
+	
 
 	ajouteremprunt (new_emprunt : EMPRUNT) is
 		do
@@ -438,17 +488,41 @@ feature{ANY}
 		local
 			i : INTEGER
 			found : BOOLEAN
+			type : CHARACTER
 		do
+
+			-- On analyse le type du media passé en paramètre
+			if {LIVRE} ?:= m then
+				type := 'l'
+			elseif {DVD} ?:= m then
+				type := 'd'
+			else
+				type := 'm'
+			end
+
 			Result := tmedia.upper
+			-- On fait la comparaison seulement si le type de l'élément à l'indice i est le même que celui média passé en paramètre
 			from i:= 1 found := False 
 			until i = tmedia.upper or found = True
 			loop
-				if m.is_equal(tmedia@i) then
+				inspect type
+				when 'l' then
+					if {LIVRE} ?:= tmedia.item(i)  then
+						Result := i
+						found := tmedia.item(i).is_equal(m)
+					end
+				when 'd' then			
+					if {DVD} ?:= tmedia.item(i) then
+						Result := i
+						found := tmedia.item(i).is_equal(m)
+					end
+				when 'm' then
 					Result := i
-					found := True
-				end
+					found := tmedia.item(i).is_equal(m)
+				end -- inspect
 				i := i + 1
 			end
+
 		end
 
 	-- Renvoie l'indice de l'utilisateur, sinon upper du tableau

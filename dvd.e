@@ -10,9 +10,8 @@ creation{ANY}
 	make_dvd, make_dvd_from_media
 
 feature{}
-	realisateur : ARRAY[STRING]
+	realisateur, acteur : ARRAY[STRING]
 	annee : INTEGER
-	acteur : ARRAY[STRING]
 	type : STRING
 
 feature{ANY}
@@ -36,6 +35,11 @@ feature{ANY}
 		annee := 0	
 	end
 
+	setannee ( a : INTEGER ) is
+	do
+		annee := a
+	end	
+
 	setrealisateur (real : ARRAY[STRING]) is
 	do
 		realisateur.copy(real)
@@ -49,6 +53,11 @@ feature{ANY}
 	settype (t : STRING) is
 	do
 		type := t
+	end
+	
+	getannee : INTEGER is
+	do
+		Result := annee
 	end
 
 	getrealisateur : ARRAY[STRING]  is
@@ -64,6 +73,32 @@ feature{ANY}
 	gettype : STRING  is
 	do
 		Result := type
+	end
+
+	ajouteracteur ( a : STRING ) is
+	do
+		acteur.add_first(a)
+	end
+
+	supprimeracteur ( a :STRING ) is
+	local
+		i : INTEGER	
+	do
+		i := acteur.first_index_of(a)
+		realisateur.remove(i)
+	end
+
+	ajouterrealisateur ( r : STRING ) is
+	do
+		realisateur.add_first(r)
+	end
+
+	supprimerrealisateur ( r : STRING ) is
+	local
+		i : INTEGER
+	do
+		i := realisateur.first_index_of(r)
+		realisateur.remove(i)
 	end
 
 	to_string : STRING is

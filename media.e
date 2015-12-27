@@ -51,9 +51,10 @@ feature{ANY}
 		Result := mediatheque
 	end
 
+
 	to_string : STRING is
 		do
-			Result :="%N Titre : "+titre+" %N Nombre : " + nb_exemplaire.to_string 
+			Result :=" %N Nombre d'exemplaires disponibles : " + nb_exemplaire.to_string +"%N Titre : "+titre
 		end
 
        	is_equal(other: like Current): BOOLEAN is
