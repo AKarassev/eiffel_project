@@ -52,6 +52,7 @@ feature{ANY}
 		end
        end
 
+
 	infix "<" (other : like Current): BOOLEAN is
        	do
 		if not (titre < other.gettitre) and not (other.gettitre < titre) then

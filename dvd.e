@@ -4,7 +4,7 @@ class DVD
 -- Eflamm Ollivier & Aurore Bouchet
 --
 inherit MEDIA
-	redefine to_string end
+	redefine to_string, is_equal, infix "<" end
 
 creation{ANY}
 	make_dvd, make_dvd_from_media
@@ -132,6 +132,27 @@ feature{ANY}
 		end
 		Result := out_str
 	end	
+
+       is_equal(other: like Current): BOOLEAN is
+       do
+		if titre.is_equal(other.gettitre) then
+			if annee = other.getannee then
+				Result := True
+			end
+		else	
+			Result := False
+		end
+       end
+	
+
+	infix "<" (other : like Current): BOOLEAN is
+       	do
+		if not (titre < other.gettitre) and not (other.gettitre < titre) then
+			Result := annee < other.getannee
+		else 
+			Result := titre < other.gettitre
+		end
+       	end
 
 
 end -- class DVD

@@ -322,7 +322,7 @@ feature{ANY}
 			until
 				i = array_media.upper
 			loop
-				str.append("Resultat n°"+i.to_string+"%N"+array_media.item(i).to_string + "%N")
+				str.append("%NRésultat n°"+i.to_string+"%N"+array_media.item(i).to_string)
 				i := i + 1 	
 			end
 			Result := str
@@ -342,6 +342,23 @@ feature{ANY}
 				str.append(temprunt.item(i).to_string)
 				i := i+1
 			end
+			Result := str
+		end
+
+	to_string_array_emprunt (array_emprunt : ARRAY[EMPRUNT] ) : STRING is
+		local		
+			i : INTEGER
+			str : STRING
+		do
+			create str.make(1)
+			from 
+				i := 1
+			until
+				i = array_emprunt.upper
+			loop
+				str.append(array_emprunt.item(i).to_string)
+				i := i+1
+			end -- loop
 			Result := str
 		end
 
@@ -585,9 +602,12 @@ feature{ANY}
 	--Si les paramètres sont passés à Void , tous les emprunts non rendus sont retournés
 	--Si l'utilisateur est à Void, on fait la recherche sur le média passé en paramètre
 	--Si le media est à Void, on fait la recherche sur l'utilisateur passé en paramètre
-	--pre: si passé en paramètre, l'utilisateur doit exister TODO
-	--pre: si passé en paramètre, le media doit exister TODO
+	--pre: si passé en paramètre, l'utilisateur doit exister 
+	--pre: si passé en paramètre, le media doit exister 
 	get_emprunts_non_rendus(u : USER; m : MEDIA) : ARRAY[EMPRUNT] is
+		require
+			user_exists : u /= Void implies has_user(u) = True
+			media_exists : m /= Void implies has_media(m) = True
 		local
 			i : INTEGER
 			out_emprunt : ARRAY[EMPRUNT]
@@ -622,6 +642,24 @@ feature{ANY}
 
 			Result := out_emprunt	
 		end
+
+	get_emprunts_en_retards ( array_emprunt : ARRAY[EMPRUNT] ) : ARRAY[EMPRUNT] is
+	local
+		i : INTEGER
+		is_rendu : BOOLEAN
+		out_emprunt : ARRAY[EMPRUNT]
+		t : TIME
+	do
+		t.update
+		from i := 1
+		until i = array_emprunt.upper
+		loop
+			if t > array_emprunt.item(i).getdatedelai and is_rendu = False then
+				out_emprunt.add_first(array_emprunt.item(i))
+			end
+		end
+		Result := out_emprunt
+	end
 
 	--Retourne l'emprunt le plus récent 
 	--pre: le tableau d'emprunt doit être non-vide TODO

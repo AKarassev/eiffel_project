@@ -145,25 +145,30 @@ feature{ANY}
 
         -- L'utilisateur emprunte un média
 	-- pre : le nombre d'emprunt actuel du user doit être strictement inférieur au quota qu'il lui a été accordé 
-	-- pre : le media doit exister dans la mediatheque TODO
+	-- pre : le media doit exister dans la mediatheque
 	-- pre : le media doit avoir au moins un exemplaire disponible
 	-- post : le nombre d'emprunt de l'utilisateur est incrémenté de 1 TODO
 	-- post : le nombre d'exemplaire disponible pour le média concerné est décrémenté de 1 TODO
 	-- post : le nouvel emprunt a bien été enregistré dans la médiathèque TODO
 	emprunter (m : MEDIA; de : TIME) is
 		require
-			quota_atteint : nb_emprunt < quota
+			media_exists : mediatheque.has_media(m)
+			quota_atteint : m.getnb_exemplaire < quota
 			exemplaire_disponible : m.getnb_exemplaire > 0
 		local	
 			new_emprunt : EMPRUNT
-			dd : TIME			
+			i, nb_exemplaire : INTEGER			
 		do
-			dd := de
-			dd.add_day(mediatheque.getdelai)
-			create new_emprunt.make(Current, m, de, dd)
+			-- on ajoute le nouvel emprunt
+			create new_emprunt.make(Current, m, de)
 			mediatheque.ajouteremprunt(new_emprunt)
-			nb_emprunt := nb_emprunt + 1 			-- on incrémente le nombre de médias empruntés
-			m.setnb_exemplaire(m.getnb_exemplaire-1) 	-- on décrémente le nombre d'exemplaires disponibles pour le media
+			-- on actualise le nombre d'exemplaires du média emprunté
+			i := mediatheque.indexof_media(m)
+			nb_exemplaire := mediatheque.getmedias.item(i).getnb_exemplaire
+			nb_exemplaire := nb_exemplaire - 1
+			mediatheque.getmedias.item(i).setnb_exemplaire(nb_exemplaire) -- on décrémente le nombre d'exemplaires disponibles pour le media
+			-- on actualise le nombre de médias empruntéss par l'utilisateur
+			nb_emprunt := nb_emprunt + 1 	-- on incrémente le nombre de médias empruntés
 		end
 
 	-- L'utilisateur rend son plus ancien emprunt du media emprunté
@@ -175,13 +180,18 @@ feature{ANY}
 		require
 			nb_emprunt_minimum : nb_emprunt >= 0
 		local
-			e : EMPRUNT
+			i : INTEGER
 		do
-			e := mediatheque.oldest_emprunt(mediatheque.get_emprunts_non_rendus(Current, m))
-			e.setis_rendu(True)			
+			-- on marque que l'emprunt a été rendu
+			-- on récupère tous les emprunts non rendus de l'utilisateur avec ce media
+			-- on passe rendu du plus vieux emprunt à True
+			mediatheque.oldest_emprunt(mediatheque.get_emprunts_non_rendus(Current, m)).setis_rendu(True)
 			-- TODO que faire si l'utilisateur le rend en retard
-			m.setnb_exemplaire(m.getnb_exemplaire+1)			
-			nb_emprunt := nb_emprunt + 1
+			-- on actualise le nombre d'exemplaire du média rendu
+			i := mediatheque.indexof_media(m)
+			mediatheque.getmedias.item(i).setnb_exemplaire(mediatheque.getmedias.item(i).getnb_exemplaire+1)
+			-- on actualise le nombre de médias empruntés par l'utilisateur			
+			nb_emprunt := nb_emprunt - 1
 		end
 
 	-- L'utilisateur consulte ses emprunts, si is_retard est à 1 seuls les emprunts en retard sont retournés
@@ -222,9 +232,6 @@ feature{ANY}
 	-- note : les types ont été forcé à USER pour pouvoir comparer des ADMIN avec des USER
 	is_equal(other : USER) : BOOLEAN is
 		do
---			io.put_string("CURRENT "+iduser+"%N")
---			io.put_string("OTHER "+other.getid+"%N")
---			io.put_string("RESULT "+iduser.is_equal(other.getid).to_string+"%N")
 			Result := iduser.is_equal(other.getid)
 		end
 

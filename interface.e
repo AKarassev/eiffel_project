@@ -127,9 +127,9 @@ do
 		if {ADMIN} ?:= user then
 			inspect choix
 			when 1 then
-					
+				emprunter_un_media	
 			when 2 then
-
+				rendre_un_media
 			when 3 then
 				consulter_ses_emprunts
 			when 4 then
@@ -137,7 +137,7 @@ do
 			when 5 then
 				gerer_les_medias
 			when 6 then
-
+				gerer_les_emprunts
 			when 7 then
 
 			when 8 then
@@ -153,13 +153,14 @@ do
 		else -- {USER}
 			inspect choix
 			when 1 then
-					
+				emprunter_un_media	
 			when 2 then
-
+				rendre_un_media
 			when 3 then
 				consulter_ses_emprunts
 			when 0 then
-				
+				user := Void
+				io.put_string("%NDéconnexion%N%N")				
 			else
 				if choix >= 4 and choix <=8 then -- trop la flemme de faire une autre boucle pour les user
 					choix := -1
@@ -170,6 +171,125 @@ do
 	end -- loop
 end -- menu
 
+rechercher_un_media : ARRAY[MEDIA] is
+local
+	cat, choix : INTEGER
+	key_word : STRING
+	out_media : ARRAY[MEDIA]
+do
+--		io.put_string("%NEntrez le type du média que vous recherchez%N")
+		io.put_string("%N 1 - Tous les médias")
+		io.put_string("%N 2 - Livres")
+		io.put_string("%N 3 - DVD%N")
+		io.put_string("%N 0 - Retour %N")
+
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+
+		inspect choix
+		when 1 then
+			cat := 0	
+		when 2 then
+			cat := 1
+		when 3 then
+			cat := 2
+		when 0 then
+			-- que faire
+		else
+			io.put_string("%NChoix incorrect%N")
+		end
+
+		io.put_string("%NMots de votre recherche (titre, année, ...) : %N")
+		io.read_line
+		io.put_new_line
+		key_word := io.last_string
+		out_media := user.rechercher(key_word, cat)
+		Result := out_media
+		io.put_string(mt.to_string_array_media(out_media))
+		io.put_string("%NAppuyez sur ENTREE pour continuer%N")
+		io.read_line
+end
+
+emprunter_un_media is
+local
+	numero : INTEGER
+	media : MEDIA
+	temps : TIME
+	array_media : ARRAY[MEDIA]
+do
+	-- si l'utilisateur n'a pas atteint son quota d'emprunt
+	if user.getquota >= user.getnb_emprunt then
+		io.put_string("%NEntrez le type du média que vous voulez emprunter%N")
+		array_media := rechercher_un_media
+		-- s'il y a des résultats dans la recherche
+		if array_media.item(1) /= Void then
+			io.put_string("%NEntrez le numéro du média dans la liste%N")
+			io.read_integer
+			numero := io.last_integer
+			media := array_media.item(numero)
+			if mt.has_media(media) and numero < array_media.upper and numero >= 0  then
+				if media.getnb_exemplaire > 0 then
+					temps.update
+					user.emprunter(media, temps)
+					io.put_string("Emprunt enregistré")
+				else
+					io.put_string("Il n'y a plus d'exemplaires disponibles pour ce media")
+				end -- if
+			else
+				io.put_string("Erreur, vous avez rentrer un mauvais numéro%N")
+			end -- if
+		-- si la recherche ne retourne aucun résultat
+		else
+			io.put_string("Aucun résultat%N")
+		end -- if
+	-- si le quota est atteint
+	else
+		io.put_string("Vous ne pouvez plus emprunter, vous avez atteint votre quota%N")
+	end
+end
+
+rendre_un_media is
+local
+	numero : INTEGER
+	media : MEDIA
+	temps : TIME
+	array_media : ARRAY[MEDIA]
+	tmp_emprunt : EMPRUNT
+do
+	-- si l'utilisateur n'a pas atteint son quota d'emprunt
+	if user.getquota >= user.getnb_emprunt then
+		io.put_string("%NEntrez le type du média que vous voulez emprunter%N")
+		array_media := rechercher_un_media
+		-- s'il y a des résultats dans la recherche
+		if array_media.item(1) /= Void then
+			io.put_string("%NEntrez le numéro du média dans la liste%N")
+			io.read_integer
+			numero := io.last_integer
+			media := array_media.item(numero)
+			if mt.has_media(media) and numero < array_media.upper and numero >= 0 then
+				temps.update
+				create tmp_emprunt.make(user, media, temps)
+				-- l'utilisateur doit avoir emprunté le media
+				if mt.getemprunts.has(tmp_emprunt) then
+					user.rendre(media, temps)
+					io.put_string("Emprunt rendu")
+				else
+					io.put_string("Il n'y a plus d'exemplaires disponibles pour ce media")
+				end -- if
+			else
+				io.put_string("Erreur, vous avez rentrer un mauvais numéro%N")
+			end -- if
+		-- si la recherche ne retourne aucun résultat
+		else
+			io.put_string("Aucun résultat%N")
+		end -- if
+	-- si le quota est atteint
+	else
+		io.put_string("Vous ne pouvez plus emprunter, vous avez atteint votre quota%N")
+	end
+end
 
 consulter_ses_emprunts is
 local
@@ -186,6 +306,7 @@ do
 		choix = 'y' or choix = 'n'
 	loop
 		io.read_character
+		--io.read_line -- FIX read_character saute le prochain read_line
 		choix := io.last_character
 		if not (choix = 'y' or choix = 'n') then
 			io.put_string("Entrez 'y' pour oui, ou bien 'n' pour non%N")
@@ -203,9 +324,11 @@ do
 	until
 		i = array_emprunt.upper
 	loop
-		io.put_string(array_emprunt.item(1).to_string)
+		if array_emprunt.item(1) /=Void then
+			io.put_string(array_emprunt.item(1).to_string)
 		
-		i := i + 1
+			i := i + 1
+		end
 	end -- loop	
 	io.put_string("%NAppuyez sur ENTREE pour revenir au menu principal%N")
 	io.read_line
@@ -270,7 +393,7 @@ do
 				io.put_string("%NChoix incorrect%N")	
 			end
 		when 0 then
-			menu
+			-- ne rien faire
 		else
 			io.put_string("%NChoix incorrect%N")		
 		end -- inspect		
@@ -575,7 +698,7 @@ do
 		when 3 then
 			afficher_medias
 		when 0 then
-			menu
+			-- ne rien faire
 		else
 			io.put_string("%NChoix incorrect%N")		
 		end -- inspect		
@@ -628,7 +751,7 @@ do
 		when 4 then
 			afficher_livres
 		when 0 then
-			menu
+			-- ne rien faire
 		else
 			io.put_string("%NChoix incorrect%N")		
 		end -- inspect		
@@ -817,7 +940,7 @@ do
 		when 4 then
 			afficher_dvds
 		when 0 then
-			menu
+			-- ne rien faire
 		else
 			io.put_string("%NChoix incorrect%N")		
 		end -- inspect		
@@ -1064,6 +1187,139 @@ end
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
 
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------  GERER LES EMPRUNTS  --------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+gerer_les_emprunts is
+local 
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0
+	loop
+		io.put_string("%N______________________________________________________%N%N")
+		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
+		io.put_string("%N 1 - Consulter les emprunts en cours d'un utilisateur")
+		io.put_string("%N 2 - Consulter les emprunts en cours d'un media")
+		io.put_string("%N 3 - Consulter les emprunts en retard")
+		io.put_string("%N 4 - Consulter les emprunts d'un utilisateur")
+		io.put_string("%N 0 - Quitter %N")
+
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+
+		inspect choix
+		when 1 then
+			consulter_emprunts_en_cours_utilisateur
+		when 2 then
+			consulter_emprunts_en_cours_media
+		when 3 then
+			consulter_emprunts_en_retards
+		when 0 then
+			-- rien faire
+		else
+			io.put_string("%NChoix incorrect%N")		
+		end -- inspect		
+	end -- loop
+	--retour au menu principal
+end -- gerer_les_emprunts
+
+
+consulter_emprunts_en_cours_utilisateur is
+local
+	continue : CHARACTER
+	is_unique : BOOLEAN
+	tmp_u : USER
+	id : STRING
+do
+	io.put_string("%NConsulter les emprunts en cours d'un utilisateur %N")
+	io.put_string("%NEntrez l'identifiant de l'utilisateur:")
+	-- on récupère l'utilisateur à modifier
+	from 	
+		is_unique := False
+		continue := 'y' 
+	until 	
+		is_unique = True or continue = 'n'
+	loop
+		io.put_string("%NIdentifiant: ")
+		io.read_line
+		id := ""
+		id.copy(io.last_string)
+		create tmp_u.make(id, "", "", mt)
+		is_unique := mt.has_user(tmp_u)
+		if is_unique = False then 
+			io.put_string("%NCet utilisateur n'existe pas")
+			io.put_string("%NVoulez-vous continuer?[y/n]")
+			from continue := 'a'
+			until continue = 'y' or continue = 'n'
+			loop
+				io.read_character
+				continue := io.last_character
+				if not ( continue = 'y' or continue = 'n' ) then
+					io.put_string("%NChoix incorrect")
+				end -- if
+			end -- loop
+		else -- is_unique = True
+			continue := 'n'
+		end -- if
+	end -- loop
+
+	if continue = 'n' then
+		io.put_string(mt.to_string_array_emprunt(mt.get_emprunts_non_rendus(tmp_u, Void)))
+	end -- if
+	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+	io.read_line
+end -- consulter_emprunts_en_cours_utilisateur
+
+consulter_emprunts_en_cours_media is
+do
+
+end
+
+
+consulter_emprunts_en_retards is
+do
+	io.put_string(mt.to_string_array_emprunt(mt.get_emprunts_en_retards(mt.getemprunts)))
+	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+	io.read_line
+end
+
+consulter_emprunts_utilisateur is
+do
+
+end
+
+
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+------------------------------------  FIN DE GERER LES EMPRUNTS  ---------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------  PARAMETRES  ----------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+
+
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+------------------------------------------  FIN PARAMETRES  --------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
 
 
 

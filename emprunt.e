@@ -20,9 +20,7 @@ feature{}
 feature{ANY}
 
 	-- pre : la date d'emprunt doit être inférieure à la date de délai
-	make ( u : USER; m : MEDIA; de, dd : TIME) is
-	require
-		logique_temporelle : de < dd	
+	make ( u : USER; m : MEDIA; de : TIME) is	
 	do
 		user := u
 		media := m
@@ -98,18 +96,24 @@ feature{ANY}
 	to_string : STRING is
 	local
 		tempsemprunt, tempsdelai : TIME_IN_FRENCH
-		str : STRING
+		rendu, is_retard : STRING
+		temps_actuel : TIME
 	do
 		create tempsemprunt
 		create tempsdelai
 		tempsemprunt.set_time(dateemprunt)
 		tempsdelai.set_time(datedelai)
+		temps_actuel.update
+		is_retard := ""
 		if is_rendu = True then
-			str := "a été rendu."
+			rendu := "a été rendu."
 		else
-			str := "n'a toujours pas été rendu."
+			rendu := "n'a toujours pas été rendu."
+			if retard = True then
+				is_retard := "RETARD%N"
+			end
 		end
-		Result := "L'emprunt du "+tempsemprunt.to_string+"%Njusqu'au "+tempsdelai.to_string+",%N"+str+" Il concerne: %N"+user.to_string+"%Nqui a emprunté: %N"+media.to_string+"%N"
+		Result := is_retard+"L'emprunt du "+tempsemprunt.to_string+"%Njusqu'au "+tempsdelai.to_string+",%N"+rendu+" Il concerne: %N"+user.to_string+"%Nqui a emprunté: %N"+media.to_string+"%N"
 	end
 
 	is_equal (other : like Current) : BOOLEAN is
@@ -120,7 +124,11 @@ feature{ANY}
 
 	infix "<" (other : like Current) : BOOLEAN is
 	do
-		Result := dateemprunt < other.getdateemprunt
+		if not (user < other.getuser) and not (other.getuser < user) then
+			Result := media < other.getmedia
+		else 
+			Result := user < other.getuser
+		end
 	end
 
 
