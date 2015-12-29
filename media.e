@@ -57,6 +57,15 @@ feature{ANY}
 			Result :=" %N Nombre d'exemplaires disponibles : " + nb_exemplaire.to_string +"%N Titre : "+titre
 		end
 
+	to_string_export : STRING is
+	local
+		string_media : STRING
+		i : INTEGER
+	do
+		string_media := "MEDIA ; Titre<"+titre+"> ; Nombre<"+nb_exemplaire.to_string+"> "
+		Result := string_media
+	end
+
        	is_equal(other: like Current): BOOLEAN is
        	do
 		Result := titre.is_equal(other.gettitre)

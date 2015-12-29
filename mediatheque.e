@@ -37,7 +37,7 @@ feature{ANY}
 	--path : chemin du fichier texte décrivant les utilisateurs
 	-- pre : le fichier en entrée doit être bien construit
 	--post: les users ont été ajouté au tableau							TODO
-	fichier_user ( path : STRING ) is
+	import_user ( path : STRING ) is
 		local
 			fichier : TEXT_FILE_READ
 			id, nom, prenom : STRING
@@ -47,6 +47,10 @@ feature{ANY}
 			x, y : INTEGER
 			arrstring : ARRAY[STRING]
 		do
+
+			-- on vide le tableau d'utilisateurs de la mediatheque
+			tuser.make(1,1)
+
 			create fichier.make
 			fichier.connect_to(path)
 			create arrstring.make(1,1)
@@ -111,7 +115,7 @@ feature{ANY}
 	--path : chemin du fichier texte décrivant les médias
 	-- pre : le fichier en entrée doit être bien construit
 	--post: les médias ont été ajouté au tableau							TODO
-	fichier_media ( path : STRING ) is
+	import_media ( path : STRING ) is
 		local
 			fichier : TEXT_FILE_READ
 			new_livre : LIVRE
@@ -123,6 +127,9 @@ feature{ANY}
 			x, y : INTEGER
 			arrstring : ARRAY[STRING]
 		do
+			-- on vide le tableau des medias de la mediatheque
+			tmedia.make(1,1)
+
 			create fichier.make
 			fichier.connect_to(path)
 			create arrstring.make(1,1)
@@ -210,11 +217,49 @@ feature{ANY}
 		end -- fichier_user
 
 
+	export_user ( path : STRING ) is
+	local
+		fichier : TEXT_FILE_WRITE
+		i : INTEGER
+		user : USER
+		string_user : STRING
+	do
+		create fichier.make
+		fichier.connect_to(path)
+		from i := 1
+		until i = tuser.upper
+		loop
+			user := tuser.item(i)
+			string_user := "Nom<"+user.getnom+"> ; Prenom<"+user.getprenom+"> ; Identifiant<"+user.getid+">"
+			if {ADMIN} ?:= user then
+				string_user := string_user+" ; Admin<OUI>"
+			end
+			string_user := string_user+"%N"
+			fichier.put_string(string_user)
+			i := i + 1
+		end -- loop
+		fichier.disconnect
+	end
 
-
-
-
-
+	export_media ( path : STRING ) is
+	local
+		fichier : TEXT_FILE_WRITE
+		i : INTEGER
+		media : MEDIA
+		string_media : STRING
+	do
+		create fichier.make
+		fichier.connect_to(path)
+		from i := 1
+		until i = tmedia.upper
+		loop
+			media := tmedia.item(i)
+			string_media := media.to_string_export+"%N"
+			fichier.put_string(string_media)
+			i := i + 1
+		end -- loop
+		fichier.disconnect
+	end
 
 
 	parse (in : STRING) : ARRAY[STRING] is
@@ -290,7 +335,7 @@ feature{ANY}
 			until
 				i = tmedia.upper
 			loop
-				from i:= 1 found := False 
+				from i := 1 found := False 
 				until i = tmedia.upper or found = True
 				loop
 					inspect type
@@ -549,15 +594,17 @@ feature{ANY}
 			found : BOOLEAN
 		do
 			Result := False
-			from i:= 1 found := False 
-			until i = tuser.upper or found = True
-			loop
-				if u.is_equal(tuser.item(i)) then
-					found := True
+			if tuser.is_empty = False then
+				from i:= 1 found := False 
+				until i = tuser.upper or found = True
+				loop
+					if u.is_equal(tuser.item(i)) then
+						found := True
+					end
+					i := i + 1
 				end
-				i := i + 1
+				Result := found
 			end
-			Result := found
 		end
 
 	-- Renvoie l'indice de l'utilisateur, sinon upper du tableau

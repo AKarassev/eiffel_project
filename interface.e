@@ -22,8 +22,8 @@ demarrage is
 do
 	create mt.make(5,30) -- par défaut
 	-- TODO vérifier que les fichiers existent
-	mt.fichier_user("utilisateurs.txt")
-	mt.fichier_media("medias.txt")
+	mt.import_user("utilisateurs.txt")
+	mt.import_media("medias.txt")
 	ecran_titre
 end -- demarrage
 
@@ -139,9 +139,11 @@ do
 			when 6 then
 				gerer_les_emprunts
 			when 7 then
-
+				importer_fichier
 			when 8 then
-
+				exporter_fichier
+			when 9 then
+				parametres
 			when 0 then
 				user := Void
 				admin := Void
@@ -208,6 +210,7 @@ do
 		out_media := user.rechercher(key_word, cat)
 		Result := out_media
 		io.put_string(mt.to_string_array_media(out_media))
+		io.put_new_line
 		io.put_string("%NAppuyez sur ENTREE pour continuer%N")
 		io.read_line
 end
@@ -306,7 +309,7 @@ do
 		choix = 'y' or choix = 'n'
 	loop
 		io.read_character
-		--io.read_line -- FIX read_character saute le prochain read_line
+--		io.read_line -- FIX read_character saute le prochain read_line
 		choix := io.last_character
 		if not (choix = 'y' or choix = 'n') then
 			io.put_string("Entrez 'y' pour oui, ou bien 'n' pour non%N")
@@ -324,9 +327,10 @@ do
 	until
 		i = array_emprunt.upper
 	loop
-		if array_emprunt.item(1) /=Void then
-			io.put_string(array_emprunt.item(1).to_string)
-		
+		if array_emprunt.item(i) /=Void then
+			io.put_string(array_emprunt.item(i).to_string)
+			io.put_new_line
+			io.put_new_line
 			i := i + 1
 		end
 	end -- loop	
@@ -1206,9 +1210,7 @@ do
 		io.put_string("%N______________________________________________________%N%N")
 		io.put_string("%NQuelle action voulez-vous effectuer:%N%N")
 		io.put_string("%N 1 - Consulter les emprunts en cours d'un utilisateur")
-		io.put_string("%N 2 - Consulter les emprunts en cours d'un media")
-		io.put_string("%N 3 - Consulter les emprunts en retard")
-		io.put_string("%N 4 - Consulter les emprunts d'un utilisateur")
+		io.put_string("%N 2 - Consulter les emprunts en retard")
 		io.put_string("%N 0 - Quitter %N")
 
 		io.put_string("%NEntrez votre choix %N")
@@ -1220,8 +1222,6 @@ do
 		when 1 then
 			consulter_emprunts_en_cours_utilisateur
 		when 2 then
-			consulter_emprunts_en_cours_media
-		when 3 then
 			consulter_emprunts_en_retards
 		when 0 then
 			-- rien faire
@@ -1280,8 +1280,49 @@ do
 end -- consulter_emprunts_en_cours_utilisateur
 
 consulter_emprunts_en_cours_media is
+local
+	continue : CHARACTER
+	is_unique : BOOLEAN
+	tmp_m : MEDIA
+	id : STRING
 do
+--	io.put_string("%NConsulter les emprunts en cours d'un média %N")
+--	io.put_string("%NEntrez l'identifiant de l'utilisateur:")
+--	-- on récupère l'utilisateur à modifier
+--	from 	
+--		is_unique := False
+--		continue := 'y' 
+--	until 	
+--		is_unique = True or continue = 'n'
+--	loop
+--		io.put_string("%NIdentifiant: ")
+--		io.read_line
+--		id := ""
+--		id.copy(io.last_string)
+--		create tmp_m.make(id, "", "", mt)
+--		is_unique := mt.has_media(tmp_m)
+--		if is_unique = False then 
+--			io.put_string("%NCet utilisateur n'existe pas")
+--			io.put_string("%NVoulez-vous continuer?[y/n]")
+--			from continue := 'a'
+--			until continue = 'y' or continue = 'n'
+--			loop
+--				io.read_character
+--				continue := io.last_character
+--				if not ( continue = 'y' or continue = 'n' ) then
+--					io.put_string("%NChoix incorrect")
+--				end -- if
+--			end -- loop
+--		else -- is_unique = True
+--			continue := 'n'
+--		end -- if
+--	end -- loop
 
+--	if continue = 'n' then
+--		io.put_string(mt.to_string_array_emprunt(mt.get_emprunts_non_rendus(Void, tmp_m)))
+--	end -- if
+--	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
+--	io.read_line
 end
 
 
@@ -1291,12 +1332,6 @@ do
 	io.put_string("%NAppuyez sur ENTREE pour revenir au menu précédent%N")
 	io.read_line
 end
-
-consulter_emprunts_utilisateur is
-do
-
-end
-
 
 
 --------------------------------------------------------------------------------------------------------
@@ -1308,11 +1343,198 @@ end
 
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
+---------------------------------------  IMPORTER EXPORTER  ---------------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+importer_fichier is
+local
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0 
+	loop
+		io.put_string("1 - Importer un fichier de medias%N")
+		if {SUPERADMIN} ?:= user then
+			io.put_string("2 - Importer un fichier d'utilisateurs%N")
+		end
+		io.put_string("0 - Quitter %N")
+		
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+		inspect choix
+		when 1 then
+			importer_medias
+		when 2 then
+			if {SUPERADMIN} ?:= user then
+				importer_utilisateurs
+			else
+				io.put_string("Choix incorrect %N")
+			end
+		when 0 then
+			--ne rien faire
+		else
+			io.put_string("Choix incorrect %N")
+		end -- inspect
+	end -- loop
+end
+
+importer_medias is
+local
+	chemin : STRING
+do
+	io.put_string("Entrez le chemin du fichier de medias à importer%N")
+	io.read_line
+	chemin := io.last_string
+	mt.import_media(chemin)
+	io.put_string("%NFichier importé%N%N")
+end
+
+importer_utilisateurs is
+local
+	chemin : STRING
+do
+	io.put_string("Entrez le chemin du fichier d'utilisateurs à importer%N")
+	io.read_line
+	chemin := io.last_string
+	mt.import_user(chemin)
+	io.put_string("%NFichier importé%N%N")
+end
+
+exporter_fichier is
+local
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0 
+	loop
+		io.put_string("1 - Exporter un fichier de medias%N")
+		io.put_string("2 - Exporter un fichier d'utilisateurs%N")
+		io.put_string("0 - Quitter %N")
+		
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+		inspect choix
+		when 1 then
+			exporter_medias
+		when 2 then
+			exporter_utilisateurs
+		when 0 then
+			--ne rien faire
+		else
+			io.put_string("Choix incorrect %N")
+		end -- inspect
+	end -- loop
+end
+
+exporter_medias is
+local
+	chemin : STRING
+do
+	io.put_string("Entrez le chemin du fichier de medias vers lequel vous voulez exporter%N")
+	io.read_line
+	chemin := io.last_string
+	mt.export_media(chemin)
+	io.put_string("%NFichier exporté dans "+chemin+"%N%N")
+end
+
+exporter_utilisateurs is
+local
+	chemin : STRING
+do
+	io.put_string("Entrez le chemin du fichier d'utilisateurs vers lequel vous voulez exporter%N")
+	io.read_line
+	chemin := io.last_string
+	mt.export_user(chemin)
+	io.put_string("%NFichier exporté dans "+chemin+"%N%N")
+end
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+---------------------------------------  FIN IMPORTER EXPORTER  ----------------------------------------
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
 --------------------------------------------  PARAMETRES  ----------------------------------------------
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
 
+parametres is
+local
+	choix : INTEGER
+do
+	from 
+		choix := -1
+	until 
+		choix = 0 
+	loop
+		io.put_string("%N______________________________________________________%N%N")
+		io.put_string("%NParamètres%N")
+		io.put_string("1 - Modifier le quota maximum d'emprunts%N")
+		io.put_string("2 - Modifier le délai maximum de rendu des médias%N")
+		io.put_string("0 - Quitter %N")
+		
+		io.put_string("%NEntrez votre choix %N")
+		io.read_integer
+		io.read_line -- FIX read_integer saute le prochain read_line
+		choix := io.last_integer
+		inspect choix
+		when 1 then
+			changer_quota
+		when 2 then
+			changer_delai
+		when 0 then
+			--ne rien faire
+		else
+			io.put_string("Choix incorrect %N")
+		end -- inspect
+	end -- loop
+end
 
+changer_quota is
+local
+	quota : INTEGER
+do
+	io.put_string("Le quota est actuellement de "+mt.getquota.to_string+" médias maximum.%N")
+	io.put_string("Entrez la nouvelle valeur: ")
+	io.read_integer
+	io.read_line -- FIX read_integer saute le prochain read_line
+	quota := io.last_integer
+	io.put_new_line
+	if quota < 0 then
+		io.put_string("Valeur entrée incorrecte")
+	else
+		mt.setquota(quota)
+	end
+end
+
+changer_delai is
+local
+	delai : INTEGER
+do
+	io.put_string("Le délai d'un emprunt est actuellement de "+mt.getdelai.to_string+" jours.%N")
+	io.put_string("Entrez la nouvelle valeur: ")
+	io.read_integer
+	io.read_line -- FIX read_integer saute le prochain read_line
+	delai := io.last_integer
+	io.put_new_line
+	if delai < 0 then
+		io.put_string("Valeur entrée incorrecte")
+	else
+		mt.setdelai(delai)
+	end
+
+end
 
 
 --------------------------------------------------------------------------------------------------------
