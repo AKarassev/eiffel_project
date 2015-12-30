@@ -4,7 +4,7 @@ class DVD
 -- Eflamm Ollivier & Aurore Bouchet
 --
 inherit MEDIA
-	redefine to_string, to_string_export, is_equal, infix "<" end
+	redefine to_string, to_string_export, fast_to_string, is_equal, infix "<" end
 
 creation{ANY}
 	make_dvd, make_dvd_from_media
@@ -161,6 +161,38 @@ feature{ANY}
 		string_dvd := string_dvd+"Nombre<"+nb_exemplaire.to_string+"> "
 
 		Result := string_dvd
+	end
+
+	fast_to_string : STRING is
+	local
+		out_str : STRING
+		i : INTEGER
+	do
+		out_str := Precursor + " "+ annee.to_string
+		out_str := out_str+" "
+		from 
+			i := 1
+		until
+			i = realisateur.upper
+		loop
+			out_str := out_str + realisateur.item(i) + " "
+			i := i + 1 	
+		end
+
+		out_str := out_str+" "
+		from 
+			i := 1
+		until
+			i = acteur.upper
+		loop
+			out_str := out_str + acteur.item(i) + " "
+			i := i + 1 	
+		end
+
+		if type /= Void then
+			out_str := out_str + " " + type
+		end
+		Result := out_str
 	end
 
        is_equal(other: like Current): BOOLEAN is

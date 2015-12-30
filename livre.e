@@ -4,7 +4,7 @@ class LIVRE
 -- Eflamm Ollivier & Aurore Bouchet
 --
 inherit MEDIA
-	redefine to_string, to_string_export, is_equal, infix "<" end	
+	redefine to_string, to_string_export, fast_to_string, is_equal, infix "<" end	
 
 creation{ANY}
 	make_livre, make_livre_from_media
@@ -48,6 +48,11 @@ feature{ANY}
 		string_dvd := "Livre ; Titre<"+titre+"> ; Auteur<"+auteur+"> ; Nombre<"+nb_exemplaire.to_string+"> "
 		Result := string_dvd
 	end
+
+	fast_to_string : STRING is
+		do
+			Result := Precursor + " " + auteur
+		end
 
        is_equal(other: like Current): BOOLEAN is
        do

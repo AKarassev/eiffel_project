@@ -97,6 +97,7 @@ end -- authentification
 menu is
 local
 	choix : INTEGER
+	array_media : ARRAY[MEDIA]
 do
 	from
 		choix := -1
@@ -105,16 +106,17 @@ do
 	loop
 		io.put_string("%N______________________________________________________%N%N")
 		io.put_string("%NMENU%N")
-		io.put_string("%N 1 - Emprunter un média")
-		io.put_string("%N 2 - Rendre un média")
-		io.put_string("%N 3 - Consulter ses emprunts%N")
+		io.put_string("%N 1 - Consulter les médias")
+		io.put_string("%N 2 - Emprunter un média")
+		io.put_string("%N 3 - Rendre un média")
+		io.put_string("%N 4 - Consulter ses emprunts%N")
 		if {ADMIN} ?:= user then
-		io.put_string("%N 4 - Gérer les utilisateurs")
-		io.put_string("%N 5 - Gérer les médias")
-		io.put_string("%N 6 - Gérer les emprunts%N")
-		io.put_string("%N 7 - Importer un fichier")
-		io.put_string("%N 8 - Exporter un fichier%N")
-		io.put_string("%N 9 - Paramètres de la médiathèque%N")
+		io.put_string("%N 5 - Gérer les utilisateurs")
+		io.put_string("%N 6 - Gérer les médias")
+		io.put_string("%N 7 - Gérer les emprunts%N")
+		io.put_string("%N 8 - Importer un fichier")
+		io.put_string("%N 9 - Exporter un fichier%N")
+		io.put_string("%N 10 - Paramètres de la médiathèque%N")
 		end -- if
 		io.put_string("%N 0 - Se déconnecter %N")
 
@@ -127,22 +129,24 @@ do
 		if {ADMIN} ?:= user then
 			inspect choix
 			when 1 then
-				emprunter_un_media	
+				array_media := rechercher_un_media
 			when 2 then
-				rendre_un_media
+				emprunter_un_media	
 			when 3 then
-				consulter_ses_emprunts
+				rendre_un_media
 			when 4 then
-				gerer_les_utilisateurs
+				consulter_ses_emprunts
 			when 5 then
-				gerer_les_medias
+				gerer_les_utilisateurs
 			when 6 then
-				gerer_les_emprunts
+				gerer_les_medias
 			when 7 then
-				importer_fichier
+				gerer_les_emprunts
 			when 8 then
-				exporter_fichier
+				importer_fichier
 			when 9 then
+				exporter_fichier
+			when 10 then
 				parametres
 			when 0 then
 				user := Void
@@ -155,10 +159,12 @@ do
 		else -- {USER}
 			inspect choix
 			when 1 then
-				emprunter_un_media	
+				array_media := rechercher_un_media
 			when 2 then
-				rendre_un_media
+				emprunter_un_media	
 			when 3 then
+				rendre_un_media
+			when 4 then
 				consulter_ses_emprunts
 			when 0 then
 				user := Void
@@ -279,7 +285,7 @@ do
 					user.rendre(media, temps)
 					io.put_string("Emprunt rendu")
 				else
-					io.put_string("Il n'y a plus d'exemplaires disponibles pour ce media")
+					io.put_string("Vous n'avez pas d'emprunts correspondant à ce media")
 				end -- if
 			else
 				io.put_string("Erreur, vous avez rentrer un mauvais numéro%N")

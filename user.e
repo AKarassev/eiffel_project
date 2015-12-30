@@ -95,13 +95,13 @@ feature{ANY}
 	-- Si cat = 0 alors on fait une recherche sur tous les médias
 	-- Si cat = 1 alors on fait une recherche sur tous les livre
 	-- Si cat = 2 alors on fait une recherche sur tous les dvd
-	-- TODO on peut améliorer le filtre
 	-- pre: cat doit être compris entre 0 et 2
 	rechercher (s : STRING; cat : INTEGER) : ARRAY[MEDIA] is
 	require
 		is_categorie : cat >= 0 and cat <= 2
 	local
 		i, j : INTEGER
+		upper_sring_m, upper_string_split : STRING
 		out_medias : ARRAY[MEDIA]
 		array_split : ARRAY[STRING]
 		m : MEDIA
@@ -117,22 +117,26 @@ feature{ANY}
 			i = mediatheque.getmedias.upper
 		loop
 			m := mediatheque.getmedias.item(i)
+			upper_sring_m := m.fast_to_string
+			upper_sring_m.to_upper
 			from
 				j := 1
 			until
 				j = array_split.upper
 			loop
+				upper_string_split := array_split.item(j)
+				upper_string_split.to_upper
 				inspect cat
 				when 0 then
-					if m.to_string.has_substring(array_split.item(j)) then
+					if upper_sring_m.has_substring(upper_string_split) then
 						out_medias.add_first(m)
 					end
 				when 1 then
-					if m.to_string.has_substring(array_split.item(j)) and {LIVRE} ?:= m then
+					if upper_sring_m.has_substring(upper_string_split) and {LIVRE} ?:= m then
 						out_medias.add_first(m)
 					end
 				when 2 then
-					if m.to_string.has_substring(array_split.item(j)) and {DVD} ?:= m then
+					if upper_sring_m.has_substring(upper_string_split) and {DVD} ?:= m then
 						out_medias.add_first(m)
 					end
 				end	

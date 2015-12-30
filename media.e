@@ -66,6 +66,11 @@ feature{ANY}
 		Result := string_media
 	end
 
+	fast_to_string : STRING is
+	do
+		Result := titre
+	end
+
        	is_equal(other: like Current): BOOLEAN is
        	do
 		Result := titre.is_equal(other.gettitre)
