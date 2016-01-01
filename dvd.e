@@ -127,7 +127,7 @@ feature{ANY}
 			i := i + 1 	
 		end
 
-		if type /= Void then
+		if type /= Void and type.is_empty = False then
 			out_str := out_str + "%N Type : " + type
 		end
 		Result := out_str
@@ -153,7 +153,7 @@ feature{ANY}
 			string_dvd := string_dvd + "Acteur<"+acteur.item(i)+"> ; "
 			i := i + 1
 		end
-		if type /= Void then
+		if type /= Void and type.is_empty = False then
 			if type.is_empty = False then
 				string_dvd := string_dvd + "Type<"+type+"> ; "
 			end
@@ -189,7 +189,7 @@ feature{ANY}
 			i := i + 1 	
 		end
 
-		if type /= Void then
+		if type /= Void and type.is_empty = False then
 			out_str := out_str + " " + type
 		end
 		Result := out_str

@@ -22,6 +22,7 @@ demarrage is
 do
 	create mt.make(5,30) -- par défaut
 	-- TODO vérifier que les fichiers existent
+	create user.make("","","",mt) -- visiteur
 	mt.import_user("utilisateurs.txt")
 	mt.import_media("medias.txt")
 	ecran_titre
@@ -30,17 +31,19 @@ end -- demarrage
 ecran_titre is
 local
 	choix : INTEGER
+	array_media : ARRAY[MEDIA]
 do
+	
 	io.put_string("%N______________________________________________________%N%N")
 	io.put_string("%N%N-------- LOGICIEL DE LA MEDIATHEQUE -------- %N%N")
-
 	from 
 		choix := -1
 	until 
 		choix = 0 
 	loop
-		io.put_string("1 - Se connecter à la médiathèque %N")
-		io.put_string("0 - Quitter %N")
+		io.put_string(" 1 - Consulter les médias%N")
+		io.put_string(" 2 - Se connecter à la médiathèque %N")
+		io.put_string(" 0 - Quitter %N")
 		
 		io.put_string("%NEntrez votre choix %N")
 		io.read_integer
@@ -48,6 +51,8 @@ do
 		choix := io.last_integer
 		inspect choix
 		when 1 then
+			array_media := rechercher_un_media
+		when 2 then
 			authentification
 		when 0 then
 			--quitter le programme
@@ -88,7 +93,6 @@ do
 	-- sinon on affiche un message d'erreur et on retourne à l'écran de démarrage
 	else
 		io.put_string("Identifiant incorrect%N")
-		demarrage
 	end -- if
 end -- authentification
 
@@ -185,40 +189,42 @@ local
 	key_word : STRING
 	out_media : ARRAY[MEDIA]
 do
---		io.put_string("%NEntrez le type du média que vous recherchez%N")
-		io.put_string("%N 1 - Tous les médias")
-		io.put_string("%N 2 - Livres")
-		io.put_string("%N 3 - DVD%N")
-		io.put_string("%N 0 - Retour %N")
+	create out_media.make(1,1)
+	io.put_string("%N 1 - Tous les médias")
+	io.put_string("%N 2 - Livres")
+	io.put_string("%N 3 - DVD%N")
+	io.put_string("%N 0 - Retour %N")
 
-		io.put_string("%NEntrez votre choix %N")
-		io.read_integer
-		io.read_line -- FIX read_integer saute le prochain read_line
-		choix := io.last_integer
+	io.put_string("%NEntrez votre choix %N")
+	io.read_integer
+	io.read_line -- FIX read_integer saute le prochain read_line
+	choix := io.last_integer
 
-		inspect choix
-		when 1 then
-			cat := 0	
-		when 2 then
-			cat := 1
-		when 3 then
-			cat := 2
-		when 0 then
-			-- que faire
-		else
-			io.put_string("%NChoix incorrect%N")
-		end
+	inspect choix
+	when 1 then
+		cat := 0	
+	when 2 then
+		cat := 1
+	when 3 then
+		cat := 2
+	when 0 then
+		-- que faire
+	else
+		io.put_string("%NChoix incorrect%N")
+	end
 
+	if choix >= 1 and choix <= 3 then
 		io.put_string("%NMots de votre recherche (titre, année, ...) : %N")
 		io.read_line
 		io.put_new_line
 		key_word := io.last_string
 		out_media := user.rechercher(key_word, cat)
-		Result := out_media
 		io.put_string(mt.to_string_array_media(out_media))
 		io.put_new_line
 		io.put_string("%NAppuyez sur ENTREE pour continuer%N")
 		io.read_line
+	end
+	Result := out_media
 end
 
 emprunter_un_media is
@@ -229,7 +235,7 @@ local
 	array_media : ARRAY[MEDIA]
 do
 	-- si l'utilisateur n'a pas atteint son quota d'emprunt
-	if user.getquota >= user.getnb_emprunt then
+	if user.getquota > user.getnb_emprunt then
 		io.put_string("%NEntrez le type du média que vous voulez emprunter%N")
 		array_media := rechercher_un_media
 		-- s'il y a des résultats dans la recherche
@@ -267,37 +273,31 @@ local
 	array_media : ARRAY[MEDIA]
 	tmp_emprunt : EMPRUNT
 do
-	-- si l'utilisateur n'a pas atteint son quota d'emprunt
-	if user.getquota >= user.getnb_emprunt then
-		io.put_string("%NEntrez le type du média que vous voulez emprunter%N")
-		array_media := rechercher_un_media
-		-- s'il y a des résultats dans la recherche
-		if array_media.item(1) /= Void then
-			io.put_string("%NEntrez le numéro du média dans la liste%N")
-			io.read_integer
-			numero := io.last_integer
-			media := array_media.item(numero)
-			if mt.has_media(media) and numero < array_media.upper and numero >= 0 then
-				temps.update
-				create tmp_emprunt.make(user, media, temps)
-				-- l'utilisateur doit avoir emprunté le media
-				if mt.getemprunts.has(tmp_emprunt) then
-					user.rendre(media, temps)
-					io.put_string("Emprunt rendu")
-				else
-					io.put_string("Vous n'avez pas d'emprunts correspondant à ce media")
-				end -- if
+	io.put_string("%NEntrez le type du média que vous voulez rendre%N")
+	array_media := rechercher_un_media
+	-- s'il y a des résultats dans la recherche
+	if array_media.item(1) /= Void then
+		io.put_string("%NEntrez le numéro du média dans la liste%N")
+		io.read_integer
+		numero := io.last_integer
+		media := array_media.item(numero)
+		if mt.has_media(media) and numero < array_media.upper and numero >= 0 then
+			temps.update
+			create tmp_emprunt.make(user, media, temps)
+			-- l'utilisateur doit avoir emprunté le media
+			if mt.getemprunts.has(tmp_emprunt) then
+				user.rendre(media, temps)
+				io.put_string("Emprunt rendu")
 			else
-				io.put_string("Erreur, vous avez rentrer un mauvais numéro%N")
+				io.put_string("Vous n'avez pas d'emprunts correspondant à ce media")
 			end -- if
-		-- si la recherche ne retourne aucun résultat
 		else
-			io.put_string("Aucun résultat%N")
+			io.put_string("Erreur, vous avez rentrer un mauvais numéro%N")
 		end -- if
-	-- si le quota est atteint
+	-- si la recherche ne retourne aucun résultat
 	else
-		io.put_string("Vous ne pouvez plus emprunter, vous avez atteint votre quota%N")
-	end
+		io.put_string("Aucun résultat%N")
+	end -- if
 end
 
 consulter_ses_emprunts is

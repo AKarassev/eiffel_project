@@ -12,7 +12,7 @@ creation{ANY}
 	make
 
 feature{}
-	dateemprunt, daterendu, datedelai : TIME
+	dateemprunt, datedelai : TIME
 	is_rendu : BOOLEAN
 	user : USER
 	media : MEDIA

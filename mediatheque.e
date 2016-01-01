@@ -749,7 +749,8 @@ feature{ANY}
 	setdelai ( dd : INTEGER) is
 		do
 			delai_defaut := dd
-		end                      
+		end     
+                 
 	
 end -- Classe Médiathèque
 
