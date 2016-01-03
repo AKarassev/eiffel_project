@@ -17,7 +17,6 @@ feature{}
 
 feature{ANY}
 	
-	--pre : vérifier que l'identifiant est unique (parmi tous les utilisateurs et le superutilisateur)			TODO
 	make (id, p, n : STRING; mt : MEDIATHEQUE)  is
 		do
 			iduser := id
@@ -182,7 +181,7 @@ feature{ANY}
 	-- post : l'emprunt concerné voit la valeur de is_rendu passé à True TODO 
 	rendre (m : MEDIA; dr : TIME) is
 		require
-			nb_emprunt_minimum : nb_emprunt >= 0
+			nb_emprunt_minimum : nb_emprunt > 0
 		local
 			i : INTEGER
 		do

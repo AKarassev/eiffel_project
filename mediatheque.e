@@ -666,22 +666,18 @@ feature{ANY}
 				i = temprunt.upper
 			loop
 				if u = Void and m = Void and temprunt.item(i).getis_rendu = False then
-					io.put_string("%Nu=Void & m=Void%N")
 					out_emprunt.add_first(temprunt.item(i))
 				elseif u = Void then
 					--FIX On rajoute un second if, au cas où m serait vide
 					if m.is_equal(temprunt.item(i).getmedia) and temprunt.item(i).getis_rendu = False then
-						io.put_string("%Nu=Void%N")
 						out_emprunt.add_first(temprunt.item(i))
 					end
 				elseif m = Void  then
 					--FIX On rajoute un second if, au cas où u serait vide
 					if u.is_equal(temprunt.item(i).getuser) and temprunt.item(i).getis_rendu = False then
-						io.put_string("%N m=Void%N")
 						out_emprunt.add_first(temprunt.item(i))
 					end
 				elseif u.is_equal(temprunt.item(i).getuser) and m.is_equal(temprunt.item(i).getmedia) and temprunt.item(i).getis_rendu = False then
-					io.put_string("%NAucun n'est Void%N")					
 					out_emprunt.add_first(temprunt.item(i))
 				end					
 				i := i + 1 	
