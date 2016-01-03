@@ -12,6 +12,7 @@ u1 : USER
 l1 : LIVRE
 m1 : MEDIATHEQUE
 t1 : TIME
+nb : INTEGER
 
 do
 
@@ -31,7 +32,15 @@ io.put_string(m1.to_string_all_emprunt)
 
 io.put_string("Cas n°3 : un utilisateur emprunte un livre, mais son quota est déjà atteint %N%N")
 
+nb := l1.getnb_exemplaire
+u1.emprunter(l1,t1)
+nb = l1.getnb_exemplaire
+
 io.put_string("Cas n°4 : un utilisateur emprunte un livre, mais celui-ci n'est plus disponible  %N%N")
+
+nb := l1.getnb_exemplaire
+u1.emprunter(l1,t1)
+nb = l1.getnb_exemplaire
 
 io.put_string("Cas n°5 : un utilisateur rend un livre emprunté en retard %N%N")
 
