@@ -11,11 +11,15 @@ local
 u1 : USER
 u2 : USER
 l1 : LIVRE
+l2 : LIVRE
 m1 : MEDIATHEQUE
 t1 : TIME
 a1 : ADMIN
 
 do
+
+io.put_string("Tests : gestion des utilisateurs %N%N")
+io.put_new_line
 
 io.put_string("Cas n°1: ajouter un utilisateur %N%N")
 
@@ -61,8 +65,30 @@ io.put_string("Cas n°7: Administrateur qui supprime un administrateur %N%N")
 
 io.put_string("Attendu True: ")
 
+io.put_string("Cas n°7: Administrateur qui supprime un administrateur %N%N")
 
+io.put_string("Tests : gestion des médias %N%N")
+io.put_new_line
 
+io.put_string("Cas n°1: Ajouter un média %N%N")
+
+create l1.make_livre("Le suicide français", "Eric Zemmour", 1, m1)
+a1.ajoutermedia(l1)
+io.put_string("Attendu True: ")
+io.put_boolean(m1.has_media(l1)
+
+io.put_string("Cas n°2: Modifier un média %N%N")
+
+create l1.make_livre("Le suicide français", "Eric Zemourr", 1, m1)
+a1.modifiermedia(l1,l2)
+io.put_string("Attendu True: ")
+io.put_boolean(m1.has_media(l2)
+
+io.put_string("Cas n°3: Supprimer un média %N%N")
+
+a1.supprimermedia(l1)
+io.put_string("Attendu False: ")
+io.put_boolean(m1.has_media(l1)
 
 
 end -- main
