@@ -34,15 +34,26 @@ io.put_string("Cas n°3 : un utilisateur emprunte un livre, mais son quota est d
 
 nb := l1.getnb_exemplaire
 u1.emprunter(l1,t1)
-nb = l1.getnb_exemplaire
+io.put_string("Attendu True: ")
+io.put_boolean(nb = l1.getnb_exemplaire)
 
 io.put_string("Cas n°4 : un utilisateur emprunte un livre, mais celui-ci n'est plus disponible  %N%N")
 
 nb := l1.getnb_exemplaire
+t1.update
 u1.emprunter(l1,t1)
 nb = l1.getnb_exemplaire
 
 io.put_string("Cas n°5 : un utilisateur rend un livre emprunté en retard %N%N")
+
+io.put_string("Cas n°6 : un utilisateur rend un livre non-emprunté %N%N")
+
+t1.update
+nb := l1.getnb_exemplaire
+u1.rendre(l1,t1)
+io.put_string("Attendu True: ")
+io.put_boolean(nb = l1.getnb_exemplaire)
+
 
 end -- main
 
