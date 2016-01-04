@@ -36,7 +36,7 @@ feature{ANY}
 	--Construit la base de données des utilisateurs de la mediatheque à partir d'un fichier
 	--path : chemin du fichier texte décrivant les utilisateurs
 	-- pre : le fichier en entrée doit être bien construit
-	--post: les users ont été ajouté au tableau							TODO
+	-- post: les users ont été ajouté au tableau							TODO
 	import_user ( path : STRING ) is
 		local
 			fichier : TEXT_FILE_READ
@@ -298,9 +298,6 @@ feature{ANY}
 		end
 
 
-
-
-
 	to_string_all_user : STRING is
 		local		
 			i : INTEGER
@@ -367,7 +364,7 @@ feature{ANY}
 			until
 				i = array_media.upper
 			loop
-				str.append("%NRésultat n°"+i.to_string+"%N"+array_media.item(i).to_string)
+				str.append("%N%NRésultat n°"+i.to_string+"%N"+array_media.item(i).to_string)
 				i := i + 1 	
 			end
 			Result := str

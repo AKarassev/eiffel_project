@@ -243,8 +243,9 @@ do
 			io.put_string("%NEntrez le numéro du média dans la liste%N")
 			io.read_integer
 			numero := io.last_integer
-			media := array_media.item(numero)
-			if mt.has_media(media) and numero < array_media.upper and numero >= 0  then
+			
+			if numero < array_media.upper and numero >= 0  then
+				media := array_media.item(numero)
 				if media.getnb_exemplaire > 0 then
 					temps.update
 					user.emprunter(media, temps)

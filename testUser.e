@@ -10,6 +10,7 @@ creation{ANY}
 feature{ANY}
 
 --Certains cas sont mis en commentaires intentionnellement
+--Cela ne veut pas dire qu'ils sont inutiles
 --Ils servent à tester les contrats des méthodes
 main is
 do

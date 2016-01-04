@@ -8,53 +8,218 @@ creation{ANY}
 	main
 
 feature{ANY}
+
+--Certains cas sont mis en commentaires intentionnellement
+--Cela ne veut pas dire qu'ils sont inutiles
+--Ils servent à tester les contrats des méthodes
 main is
-	local
-		mt1 : MEDIATHEQUE
-		u1 u2: USER
-		a1, a2: ADMIN
-		am1 : ARRAY[MEDIA]
-		l1, l2 : LIVRE
-		t : TIME
-	do
-		io.put_string("%N%N-------- MEDIATHEQUE -------- %N%N")
+do
+	io.put_string("%N ------- Tests unitaires de la classe MEDIATHEQUE ------- %N")
+	io.put_string("Test n°1%N")
+	cas11	
+--	cas12 -- Assertion Violated
+	io.put_string("Test n°2%N")
+	cas21
+	io.put_string("Test n°3%N")
+	cas31
+	io.put_string("Test n°4%N")
+	cas41
+	cas42
+--	cas43 -- Assertion Violated
+	cas44
+--	cas45 -- Assertion Violated
+	io.put_string("Test n°5%N")
+	cas51
+	cas52
+	io.put_string("%N ------- Fin des tests unitaires de la classe MEDIATHEQUE ------- %N")
+end
 
-		io.put_string("%N ------- Test de fichier_user ------- %N")
-		create mt1.make(5,30)
---		mt1.fichier_user("utilisateurs.txt")
---		io.put_string(mt1.to_string_all_user)
-		io.put_string("%N ------- Test de fichier_media ------- %N")
-		mt1.fichier_media("medias.txt")
---		io.put_string(mt1.to_string_all_media)
-		io.put_string("%N ------- Test de fichier_media ------- %N")
-		create a1.make("e130159c", "eflamm", "ollivier", mt1)
-		create a2.make("e130159c", "eflamm", "ollivier", mt1)
-		create u2.make("e130159c", "eflamm", "ollivier", mt1)
-		create l1.make_livre("titre a", "auteur a", 3, mt1)
-		create l2.make_livre("titre b", "auteur b", 3, mt1)
---		io.put_string("TEST HAS MEDIA : "+mt1.has_media(l1).to_string+"%N")
-		mt1.ajoutermedia(l1)
-		mt1.ajoutermedia(l2)
-		mt1.ajouteruser(a1)
-		create am1.make(1,1)
-		am1 := a1.rechercher("2004", 2)
-		--io.put_string(mt1.to_string_array_media(am1))
-		t.update
---		a1.emprunter(mt1.getmedias.item(1), t)
-		u1 := a1
---		io.put_string("EQUAL ADMIN: "+a1.is_equal(u2).to_string+"%N")
---		io.put_string("EQUAL USER: "+u2.is_equal(a1).to_string+"%N")
---		io.put_string("EQUAL USER: "+mt1.getusers.item(1).is_equal(u2).to_string+"%N")
-		io.put_string("ADMIN EXIST: "+mt1.has_user(u2).to_string+"%N")
---		io.put_string(mt1.get_emprunts_non_rendu(u1, Void).item(1).to_string)
---		if u2  ?:= a1 then
---			b := True
---		else 
---			b := False
---		end
-		io.put_string("TEST TYPE:"+mt1.getusers.upper.to_string+"%N")
+-- Test n°1
+
+cas11 is
+local
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	assert := mt.getquota = 5 and mt.getdelai = 30 and mt.getsu.getid.is_equal("su")
+	if assert = True then
+		io.put_string("     Cas n°1.1 : réussite%N")
+	else
+		io.put_string("     Cas n°1.1 : échec%N")
 	end
+end
 
+cas12 is
+local
+	mt : MEDIATHEQUE
+do
+	create mt.make(0,30)
+	io.put_string("     Cas n°1.2 : échec%N")
+end
+
+-- test n°2 
+
+cas21 is
+local
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	mt.import_user("utilisateurs.txt")
+	assert := mt.getusers.item(1) /= Void
+	if assert = True then
+		io.put_string("     Cas n°2.1 : réussite%N")
+	else
+		io.put_string("     Cas n°2.1 : échec%N")
+	end
+end
+
+-- test n°3 
+
+cas31 is
+local
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	mt.import_media("medias.txt")
+	assert := mt.getmedias.item(1) /= Void
+	if assert = True then
+		io.put_string("     Cas n°3.1 : réussite%N")
+	else
+		io.put_string("     Cas n°3.1 : échec%N")
+	end
+end
+
+-- test n°4
+
+cas41 is
+local
+	u : USER
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	create u.make("e130159c", "Eflamm", "Ollivier", mt)
+	mt.ajouteruser(u)
+	assert := mt.getusers.item(1).getid.is_equal("e130159c")
+	if assert = True then
+		io.put_string("     Cas n°4.1 : réussite%N")
+	else
+		io.put_string("     Cas n°4.1 : échec%N")
+	end
+end
+
+cas42 is
+local
+	u1, u2 : USER
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	create u1.make("e130159c", "Eflamm", "Ollivier", mt)
+	create u2.make("e130159c", "Mmalfe", "Reivillo", mt)
+	mt.ajouteruser(u1)
+	assert := mt.getusers.item(1).getnom.is_equal("Ollivier")
+	mt.modifieruser(u1, u2)
+	assert :=assert and mt.getusers.item(1).getnom.is_equal("Reivillo")
+	if assert = True then
+		io.put_string("     Cas n°4.2 : réussite%N")
+	else
+		io.put_string("     Cas n°4.2 : échec%N")
+	end
+end
+
+cas43 is
+local
+	u1, u2 : USER
+	mt : MEDIATHEQUE
+do
+	create mt.make(5,30)
+	create u1.make("e130159c", "Eflamm", "Ollivier", mt)
+	create u2.make("c951031e", "Mmalfe", "Reivillo", mt)
+	mt.ajouteruser(u1)
+
+	mt.modifieruser(u2, u1)
+	io.put_string("     Cas n°4.3 : échec%N")
+end
+
+cas44 is
+local
+	u : USER
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	create u.make("e130159c", "Eflamm", "Ollivier", mt)
+	mt.ajouteruser(u)
+	mt.supprimeruser(u)
+	assert := mt.getusers.item(1) = Void
+	if assert = True then
+		io.put_string("     Cas n°4.4 : réussite%N")
+	else
+		io.put_string("     Cas n°4.4 : échec%N")
+	end
+end
+
+cas45 is
+local
+	u : USER
+	mt : MEDIATHEQUE
+do
+	create mt.make(5,30)
+	create u.make("e130159c", "Eflamm", "Ollivier", mt)
+	mt.supprimeruser(u)
+	io.put_string("     Cas n°4.5 : échec%N")
+end
+
+
+-- test n°5
+
+cas51 is
+local
+	u : USER
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	create u.make("e130159c", "Eflamm", "Ollivier", mt)
+	mt.ajouteruser(u)
+	mt.upgradeuser(u)
+	assert := {ADMIN} ?:= mt.getusers.item(1)
+	if assert = True then
+		io.put_string("     Cas n°5.1 : réussite%N")
+	else
+		io.put_string("     Cas n°5.1 : échec%N")
+	end
+end
+
+cas52 is
+local
+	a : ADMIN
+	mt : MEDIATHEQUE
+	assert : BOOLEAN
+do
+	assert := False
+	create mt.make(5,30)
+	create a.make("e130159c", "Eflamm", "Ollivier", mt)
+	mt.ajouteruser(a)
+	mt.upgradeuser(a)
+	assert := {ADMIN} ?:= mt.getusers.item(1)
+	if assert = True then
+		io.put_string("     Cas n°5.2 : réussite%N")
+	else
+		io.put_string("     Cas n°5.2 : échec%N")
+	end
+end
 
 end -- class TESTMEDIATHEQUE
 

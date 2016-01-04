@@ -1,8 +1,6 @@
 class MEDIA
---
--- Classe représentant les médias
--- Cette classe sera abstraite par la suite
---
+
+
 inherit
        COMPARABLE
        redefine is_equal end       
